@@ -14,6 +14,36 @@ const noteTitleInput = document.getElementById('note-title');
 const noteContentInput = document.getElementById('note-content');
 const saveNoteBtn = document.getElementById('save-note-btn');
 const deleteNoteBtn = document.getElementById('delete-note-btn');
+const toastContainer = document.getElementById('toast-container');
+const deleteModal = document.getElementById('delete-modal');
+const modalCancelBtn = document.getElementById('modal-cancel-btn');
+const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+
+// Toast notification function
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  toast.setAttribute('role', 'status');
+  toastContainer.appendChild(toast);
+
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// Modal functions
+function showDeleteModal() {
+  deleteModal.classList.remove('hidden');
+  modalCancelBtn.focus();
+}
+
+function hideDeleteModal() {
+  deleteModal.classList.add('hidden');
+}
 
 // Fetch all notes
 async function fetchNotes(searchQuery = '') {
@@ -165,38 +195,49 @@ async function saveCurrentNote() {
   const content = noteContentInput.value.trim();
 
   if (!title && !content) {
-    alert('Please enter a title or content for your note.');
+    showToast('Please enter a title or content for your note.', 'warning');
     return;
   }
 
   let note;
   if (currentNoteId) {
     note = await updateNote(currentNoteId, { title, content });
+    if (note) {
+      showToast('Note updated successfully!', 'success');
+    }
   } else {
     note = await createNote({ title, content });
     if (note) {
       currentNoteId = note.id;
+      showToast('Note created successfully!', 'success');
     }
   }
 
   if (note) {
     renderNotesList(searchInput.value);
+  } else {
+    showToast('Failed to save note. Please try again.', 'error');
   }
 }
 
 // Delete the current note
-async function deleteCurrentNote() {
+function deleteCurrentNote() {
   if (!currentNoteId) return;
+  showDeleteModal();
+}
 
-  const confirmed = confirm('Are you sure you want to delete this note?');
-  if (!confirmed) return;
-
+// Confirm deletion from modal
+async function confirmDelete() {
+  hideDeleteModal();
   const deleted = await deleteNote(currentNoteId);
   if (deleted) {
+    showToast('Note deleted successfully!', 'success');
     currentNoteId = null;
     noteEditor.classList.add('hidden');
     noNoteSelected.style.display = 'flex';
     renderNotesList(searchInput.value);
+  } else {
+    showToast('Failed to delete note. Please try again.', 'error');
   }
 }
 
@@ -217,6 +258,22 @@ function debounce(func, wait) {
 newNoteBtn.addEventListener('click', showNewNoteEditor);
 saveNoteBtn.addEventListener('click', saveCurrentNote);
 deleteNoteBtn.addEventListener('click', deleteCurrentNote);
+modalCancelBtn.addEventListener('click', hideDeleteModal);
+modalConfirmBtn.addEventListener('click', confirmDelete);
+
+// Close modal on escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !deleteModal.classList.contains('hidden')) {
+    hideDeleteModal();
+  }
+});
+
+// Close modal on background click
+deleteModal.addEventListener('click', (e) => {
+  if (e.target === deleteModal) {
+    hideDeleteModal();
+  }
+});
 
 searchInput.addEventListener('input', debounce((e) => {
   renderNotesList(e.target.value);

@@ -42,12 +42,20 @@ describe('Notes Store', () => {
       expect(notes).toEqual([]);
     });
 
-    it('should return all notes sorted by updatedAt descending', async () => {
+    it('should return all notes sorted by updatedAt descending', () => {
+      // Use jest fake timers to control time
+      jest.useFakeTimers();
+      
+      jest.setSystemTime(new Date('2024-01-01T10:00:00Z'));
       notesStore.createNote({ title: 'First' });
-      await new Promise(resolve => setTimeout(resolve, 10));
+      
+      jest.setSystemTime(new Date('2024-01-01T11:00:00Z'));
       notesStore.createNote({ title: 'Second' });
-      await new Promise(resolve => setTimeout(resolve, 10));
+      
+      jest.setSystemTime(new Date('2024-01-01T12:00:00Z'));
       notesStore.createNote({ title: 'Third' });
+
+      jest.useRealTimers();
 
       const notes = notesStore.getAllNotes();
       expect(notes).toHaveLength(3);
