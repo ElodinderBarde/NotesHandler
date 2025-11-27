@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NotesHandler - Your Wiki-like Notes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <h1>📝 NotesHandler</h1>
+      <p class="tagline">Your Wiki-like notes, accessible from everywhere</p>
+    </header>
+
+    <main class="main-content">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <input type="text" id="search-input" placeholder="Search notes..." class="search-input">
+          <button id="new-note-btn" class="btn btn-primary">+ New Note</button>
+        </div>
+        <ul id="notes-list" class="notes-list">
+          <!-- Notes will be loaded here -->
+        </ul>
+      </aside>
+
+      <section class="editor-section">
+        <div id="no-note-selected" class="no-note-message">
+          <p>Select a note from the sidebar or create a new one</p>
+        </div>
+        <div id="note-editor" class="note-editor hidden">
+          <input type="text" id="note-title" placeholder="Note title..." class="note-title-input">
+          <textarea id="note-content" placeholder="Write your note here..." class="note-content-input"></textarea>
+          <div class="editor-actions">
+            <button id="save-note-btn" class="btn btn-success">Save</button>
+            <button id="delete-note-btn" class="btn btn-danger">Delete</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
