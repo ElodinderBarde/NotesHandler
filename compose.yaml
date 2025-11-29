@@ -13,7 +13,8 @@ services:
      environment:
        POSTGRES_DB: NotesHandlerDB
        POSTGRES_USER: admin
-       POSTGRES_PASSWORD: password
+       POSTGRES_PASSWORD: passwordi
+       ports:
 
      volumes:
       - db-data:/var/lib/postgresql/data
