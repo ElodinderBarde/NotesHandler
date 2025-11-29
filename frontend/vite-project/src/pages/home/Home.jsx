@@ -10,7 +10,7 @@ function Home() {
     return (
         <div className="home-page">
             <main>
-                <h1>Welcome to NotesHandler</h1>
+                <h1>Willkommen beim NotesHandler</h1>
                 <p>Bitte logge dich ein, um deine Notizen zu bearbeiten</p>
 
                 <button className="login-button" onClick={() => setShowLogin(true)}>
