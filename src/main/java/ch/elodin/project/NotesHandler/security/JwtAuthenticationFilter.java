@@ -37,6 +37,21 @@ import java.io.IOException;
             final String jwt;
             final String username;
 
+
+            String path = request.getServletPath();
+
+            if (path.equals("/api/users/login") ||
+                    path.equals("/api/users/register") ||
+                    path.equals("/api/auth/login") ||
+                    path.startsWith("/swagger") ||
+                    path.startsWith("/v3/api-docs") ||
+                    path.equals("/api/users/debug")
+            ) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return;

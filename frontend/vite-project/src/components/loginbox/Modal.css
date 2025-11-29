@@ -1,0 +1,64 @@
+/* Hintergrundüberlagerung */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+/* Das Modal selbst */
+.modal-content {
+    background: darkcyan;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 350px;
+    position: relative;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Close-Button (rechts oben) */
+.modal-close {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    background: transparent;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+/* Input-Styling */
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 7px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button[type="submit"] {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: #333;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background: #444;
+}
