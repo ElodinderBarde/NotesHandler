@@ -41,5 +41,4 @@ public class AppUserController {
         return "AppUserController is working!";
     }
 
-
 }

@@ -1,83 +1,126 @@
 import "../loginbox/Modal.css";
-import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { registerUser } from "../../utils/authService";
+import { useState, useEffect } from "react";
+import { registerUser, checkUsernameAvailable, checkEmailAvailable } from "../../utils/authService.js";
 
 export function Registerbox({ onClose }) {
-    const { login } = useAuth(); // optional für Auto-Login nach Registrierung
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [usernameStatus, setUsernameStatus] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [emailStatus, setEmailStatus] = useState(null);
 
-    const handleSubmit = async (e) => {
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(async () => {
+            if (username.length >= 3) {
+                const result = await checkUsernameAvailable(username);
+                setUsernameStatus(result?.available);
+            } else {
+                setUsernameStatus(null);
+            }
+        }, 400);
+
+        return () => clearTimeout(delayDebounce);
+    }, [username]);
+
+
+
+    useEffect(() => {
+        const delay = setTimeout(async () => {
+            if (email.length >= 5) {
+                const result = await checkEmailAvailable(email);
+                setEmailStatus(result?.available);
+            } else {
+                setEmailStatus(null);
+            }
+        }, 400);
+
+        return () => clearTimeout(delay);
+    }, [email]);
+
+
+    const handleRegister = async (e) => {
         e.preventDefault();
-        setError("");
-        setLoading(true);
-
         try {
             const result = await registerUser(username, email, password);
-
-            // Auto-Login nach erfolgreicher Registrierung
-            await login(result.username, password);
-
+            console.log("Registered:", result);
             onClose();
-        } catch (err) {
-            setError(err.message || "Registrierung fehlgeschlagen");
+        } catch (error) {
+            setErrorMessage(error.message || "Registrierung fehlgeschlagen.");
         }
-
-        setLoading(false);
     };
+
+    const disableSubmit =
+        usernameStatus === false ||
+        emailStatus === false ||
+        !username ||
+        !email ||
+        !password;
+
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-
                 <button className="modal-close" onClick={onClose}>✕</button>
 
                 <h2>Registrieren</h2>
 
-                {error && <p className="error">{error}</p>}
+                {errorMessage && <p className="error">{errorMessage}</p>}
 
-                <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label>Username</label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
-                    </div>
+                <form onSubmit={handleRegister}>
 
-                    <div className="input-group">
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
+                    {/* Username */}
+                    <label>Username</label>
+                    <br/>
+                    <input
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
 
-                    <div className="input-group">
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+                    {usernameStatus === true && (
+                        <p className="success">✔ Username ist verfügbar</p>
+                    )}
+                    {usernameStatus === false && (
+                        <p className="error">✖ Username ist bereits vergeben</p>
+                    )}
+                    <br />
+                    <br />
+                    {/* Email */}
+                    <label>Email</label>
+                    <br />
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    {emailStatus === true && (
+                        <p className="success">✔ Email ist verfügbar</p>
+                    )}
+                    {emailStatus === false && (
+                        <p className="error">✖ Email ist bereits registriert</p>
+                    )}
+                    <br />
+                    <br />
 
-                    <button type="submit" disabled={loading}>
-                        {loading ? "Wird erstellt..." : "Registrieren"}
+                    {/* Password */}
+                    <label>Password</label>
+                    <br />
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+
+                    <button type="submit" disabled={disableSubmit}>
+                        Registrieren
                     </button>
                 </form>
-
             </div>
         </div>
     );

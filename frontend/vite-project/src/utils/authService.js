@@ -49,3 +49,28 @@ export const registerUser = async (username, email, password) => {
         throw new Error(error.response?.data?.error || "Registration failed");
     }
 };
+
+
+export const checkUsernameAvailable = async (username) => {
+    if (!username || username.length < 3) return null;
+
+    try {
+        const response = await apiClient.get(`/auth/check-username/${username}`);
+        return response.data; // { available: true/false, message: "..." }
+    } catch (err) {
+        console.error("Username check failed:", err);
+        return null;
+    }
+};
+
+export const checkEmailAvailable = async (email) => {
+    if (!email || email.length < 5) return null;
+
+    try {
+        const response = await apiClient.get(`/auth/check-email/${email}`);
+        return response.data; // { available: true/false, message: "..." }
+    } catch (err) {
+        console.error("Email check failed:", err);
+        return null;
+    }
+};
