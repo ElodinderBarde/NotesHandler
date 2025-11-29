@@ -34,7 +34,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Builder
-@Table(name = "appUsers")
+@Table(name = "app_users")
 public class AppUser implements UserDetails {
 
     @Id
