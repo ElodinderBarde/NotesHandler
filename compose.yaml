@@ -5,21 +5,38 @@ services:
       - "80:80"
     networks:
       - app-network
-  configs: {}
-
 
   database:
-     image: postgres:latest
-     environment:
-       POSTGRES_DB: NotesHandlerDB
-       POSTGRES_USER: admin
-       POSTGRES_PASSWORD: password
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: NotesHandlerDB
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/postgresql
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d NotesHandlerDB" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
-     volumes:
-      - db-data:/var/lib/postgresql/data
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - app-network
+
+
 
 networks:
-  app-network: {}
+  app-network:
+    driver: bridge
 
 volumes:
   db-data: {}
