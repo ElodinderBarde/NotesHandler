@@ -1,10 +1,11 @@
 package ch.elodin.project.NotesHandler.entity.notes;
 
+import ch.elodin.project.NotesHandler.entity.AppUser;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,37 +13,24 @@ import java.util.List;
 @Table(name = "worldnotes_note")
 @Data
 @NoArgsConstructor
-public class WorldNotesNote {
+@AllArgsConstructor
+public class WorldNotesNote extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "note_id")
-    private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "folder_id")
-    private WorldNotesFolder folder;
-
+    @Column(nullable = false)
     private String title;
-    private String slug;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String content;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private AppUser user;
 
-    @OneToMany(mappedBy = "sourceNote")
-    private List<WorldNotesLink> outgoingLinks = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    private WorldNotesFolder folder;
 
-    @OneToMany(mappedBy = "targetNote")
-    private List<WorldNotesLink> incomingLinks = new ArrayList<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "worldnotes_note_category",
-            joinColumns = @JoinColumn(name = "note_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @ManyToMany(mappedBy = "notes")
     private List<WorldNotesCategory> categories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "note")
+    private List<WorldNotesLink> links = new ArrayList<>();
 }

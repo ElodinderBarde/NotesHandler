@@ -1,4 +1,4 @@
-package ch.elodin.project.NotesHandler.mapper;
+package ch.elodin.project.NotesHandler.mapper.notes;
 
 
 import ch.elodin.project.NotesHandler.dto.notes.CategoryDTO;
@@ -14,5 +14,6 @@ public interface WorldNotesCategoryMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "notes", ignore = true)
+    @Mapping(target = "user", ignore = true)
     WorldNotesCategory toEntity(CategoryDTO dto);
 }

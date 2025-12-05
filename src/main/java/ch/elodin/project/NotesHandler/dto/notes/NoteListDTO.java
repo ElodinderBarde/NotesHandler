@@ -1,23 +1,22 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
 
+import java.util.List;
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
 public class NoteListDTO {
+
     private Long id;
     private String title;
-    private String slug;
     private Long folderId;
+    private String folderName;
 
-    public NoteListDTO() {}
+    private List<String> categories;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getSlug() { return slug; }
-    public void setSlug(String slug) { this.slug = slug; }
-
-    public Long getFolderId() { return folderId; }
-    public void setFolderId(Long folderId) { this.folderId = folderId; }
 }

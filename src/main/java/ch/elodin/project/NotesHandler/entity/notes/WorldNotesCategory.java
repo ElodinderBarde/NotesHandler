@@ -1,35 +1,36 @@
 package ch.elodin.project.NotesHandler.entity.notes;
 
+import ch.elodin.project.NotesHandler.entity.AppUser;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
 @Entity
 @Table(name = "worldnotes_category")
-public class WorldNotesCategory {
+public class WorldNotesCategory extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
-    private Long id;
-
-    @Column(name = "category_name", nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "categories")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private AppUser user;
+
+    @ManyToMany
+    @JoinTable(
+            name = "worldnotes_note_category",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "note_id")
+    )
     private List<WorldNotesNote> notes = new ArrayList<>();
 
-    // ----- Constructors -----
-    public WorldNotesCategory() {}
-
-    // ----- Getter & Setter -----
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public List<WorldNotesNote> getNotes() { return notes; }
-    public void setNotes(List<WorldNotesNote> notes) { this.notes = notes; }
 }

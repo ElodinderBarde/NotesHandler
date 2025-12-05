@@ -1,18 +1,19 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
 public class FolderReadDTO {
+
     private Long id;
-    private Long parentId;
     private String name;
 
-    public FolderReadDTO() {}
+    private Long parentFolderId;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public Long getParentId() { return parentId; }
-    public void setParentId(Long parentId) { this.parentId = parentId; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
 }

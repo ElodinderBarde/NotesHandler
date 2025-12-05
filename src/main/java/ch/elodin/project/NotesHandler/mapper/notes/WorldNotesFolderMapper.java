@@ -1,4 +1,4 @@
-package ch.elodin.project.NotesHandler.mapper;
+package ch.elodin.project.NotesHandler.mapper.notes;
 
 
 import ch.elodin.project.NotesHandler.dto.notes.FolderReadDTO;
@@ -11,17 +11,18 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface WorldNotesFolderMapper {
 
-    @Mapping(source = "parentFolder.id", target = "parentId")
+    @Mapping(target = "childrenFolder", ignore = true)
+    FolderTreeDTO toTreeDTO(WorldNotesFolder folder);
+
+    @Mapping(target = "parentFolderId", source = "parentFolder.id")
     FolderReadDTO toReadDTO(WorldNotesFolder folder);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "parentFolder", ignore = true)
-    @Mapping(target = "children", ignore = true)
     @Mapping(target = "notes", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "childrenFolder", ignore = true)
+    @Mapping(target = "parentFolder", ignore = true)
     WorldNotesFolder toEntity(FolderWriteDTO dto);
-
-    @Mapping(target = "children", ignore = true)
-    FolderTreeDTO toTreeDTO(WorldNotesFolder folder);
 }
+
+
