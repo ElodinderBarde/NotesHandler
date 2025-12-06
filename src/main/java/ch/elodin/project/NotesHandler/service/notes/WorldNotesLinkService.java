@@ -1,10 +1,13 @@
 package ch.elodin.project.NotesHandler.service.notes;
 
+import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesLinkRepository;
-import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesNoteRepository;
+import ch.elodin.project.NotesHandler.dto.notes.LinkDTO;
+import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesLink;
-import ch.elodin.project.NotesHandler.entity.notes.WorldNotesNote;
+import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesLinkMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,37 +17,27 @@ import java.util.List;
 public class WorldNotesLinkService {
 
     private final WorldNotesLinkRepository linkRepository;
-    private final WorldNotesNoteRepository noteRepository;
+    private final AppUserRepository userRepository;
+    private final WorldNotesLinkMapper linkMapper;
 
-    public WorldNotesLink createExternalLink(String url, String linkText, Long userId) {
-        WorldNotesLink link = new WorldNotesLink();
-        link.setUrl(url);
-        link.setLinkText(linkText);
-        return linkRepository.save(link);
+    private AppUser getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
-    public WorldNotesLink createInternalLink(Long sourceNoteId, Long targetNoteId, String linkText, Long userId) {
+    public LinkDTO createLink(LinkDTO dto) {
+        AppUser user = getCurrentUser();
 
-        WorldNotesNote source = noteRepository.findByIdAndUserId(sourceNoteId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Source note not found"));
+        WorldNotesLink entity = linkMapper.toEntity(dto);
 
-        WorldNotesNote target = noteRepository.findByIdAndUserId(targetNoteId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Target note not found"));
 
-        WorldNotesLink link = new WorldNotesLink();
-        link.setNote(source);
-        link.setTargetNote(target);
-        link.setLinkText(linkText);
-
-        return linkRepository.save(link);
+        linkRepository.save(entity);
+        return linkMapper.toDTO(entity);
     }
 
-    public void deleteLinksForNote(Long noteId) {
-        List<WorldNotesLink> links = linkRepository.findAllByNoteId(noteId);
-        linkRepository.deleteAll(links);
-    }
-
-    public List<WorldNotesLink> getBacklinks(Long noteId) {
-        return linkRepository.findAllByTargetNoteId(noteId);
+    public List<LinkDTO> getLinks() {
+        AppUser user = getCurrentUser();
+        return linkMapper.toDTOs(linkRepository.findAllByNoteIdAndUser(user.getId()));
     }
 }

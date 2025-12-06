@@ -1,19 +1,14 @@
 package ch.elodin.project.NotesHandler.controller.notes;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
-import java.util.List;
+import ch.elodin.project.NotesHandler.dto.notes.*;
+import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesCategoryMapper;
 import ch.elodin.project.NotesHandler.service.notes.WorldNotesCategoryService;
-import ch.elodin.project.NotesHandler.dto.notes.CategoryDTO;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -21,27 +16,23 @@ import ch.elodin.project.NotesHandler.dto.notes.CategoryDTO;
 public class WorldNotesCategoryController {
 
     private final WorldNotesCategoryService categoryService;
-
-    @GetMapping
-    public List<CategoryDTO> getCategories(@RequestParam Long userId) {
-        return categoryService.getCategories(userId)
-                .stream()
-                .map(cat -> new CategoryDTO(cat.getId(), cat.getName()))
-                .toList();
-    }
+    private final WorldNotesCategoryMapper mapper;
 
     @PostMapping
-    public CategoryDTO createCategory(@RequestParam Long userId, @RequestBody CategoryDTO dto) {
-        var cat = categoryService.createCategory(dto.getName(), userId);
-        return new CategoryDTO(cat.getId(), cat.getName());
+    public CategoryReadDTO create(@RequestBody CategoryWriteDTO dto) {
+        return mapper.toReadDTO(categoryService.createCategory(dto));
     }
 
-    @DeleteMapping("/{categoryId}")
-    public ResponseEntity<?> deleteCategory(
-            @PathVariable Long categoryId,
-            @RequestParam Long userId
-    ) {
-        categoryService.deleteCategory(categoryId, userId);
+    @GetMapping("/all")
+    public ResponseEntity<List<CategoryDTO>> getAll() {
+        return ResponseEntity.ok(
+                mapper.toDTOs(categoryService.getCategory())
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
 }

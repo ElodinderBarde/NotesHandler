@@ -1,7 +1,7 @@
 package ch.elodin.project.NotesHandler.service;
 
 import ch.elodin.project.NotesHandler.entity.AppUser;
-import ch.elodin.project.NotesHandler.repository.AppUserRepository;
+import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

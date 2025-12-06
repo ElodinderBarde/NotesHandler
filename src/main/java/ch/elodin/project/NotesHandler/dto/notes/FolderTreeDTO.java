@@ -1,21 +1,19 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
 
-import java.util.ArrayList;
 import java.util.List;
-import lombok.*;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class FolderTreeDTO {
+public record FolderTreeDTO(
+        Long id,
+        String name,
+        List<FolderTreeDTO> children
+) {
 
-    private Long id;
-    private String name;
-    private Long parentFolderId;
-
-    private List<FolderTreeDTO> childrenFolder = new ArrayList<>();
-
+    public FolderTreeDTO(FolderReadDTO readDTO, List<FolderTreeDTO> children) {
+        this(
+                readDTO.id(),
+                readDTO.name(),
+                children
+        );
+    }
 }

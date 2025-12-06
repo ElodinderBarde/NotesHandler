@@ -1,39 +1,59 @@
 package ch.elodin.project.NotesHandler.mapper.notes;
 
-
 import ch.elodin.project.NotesHandler.dto.notes.NoteListDTO;
 import ch.elodin.project.NotesHandler.dto.notes.NoteReadDTO;
 import ch.elodin.project.NotesHandler.dto.notes.NoteWriteDTO;
+import ch.elodin.project.NotesHandler.entity.notes.WorldNotesLink;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesNote;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
-@Mapper(componentModel = "spring",
-        uses = {WorldNotesCategoryMapper.class, WorldNotesFolderMapper.class, WorldNotesLinkMapper.class})
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Mapper(componentModel = "spring")
 public interface WorldNotesNoteMapper {
 
-    // READ
+    // READ DTO -------------------------------------------------------
     @Mapping(target = "folderId", source = "folder.id")
-    @Mapping(target = "folderName", source = "folder.name")
-    @Mapping(target = "categories", source = "categories")
-    @Mapping(target = "outgoingLinks", source = "links")
-    @Mapping(target = "incomingLinks", ignore = true) // wird im Service gesetzt
-    NoteReadDTO toReadDTO(WorldNotesNote note);
+    @Mapping(target = "categoryId", source = "category.id")
+    @Mapping(target = "linkIds", expression = "java(mapLinks(entity.getLinks()))")
+    NoteReadDTO toReadDTO(WorldNotesNote entity);
 
-    // LIST
+    List<NoteReadDTO> toReadDTOs(List<WorldNotesNote> entities);
+
+
+    // LIST DTO -------------------------------------------------------
     @Mapping(target = "folderId", source = "folder.id")
-    @Mapping(target = "folderName", source = "folder.name")
-    @Mapping(target = "categories", expression = "java(note.getCategories().stream().map(c -> c.getName()).toList())")
-    NoteListDTO toListDTO(WorldNotesNote note);
+    NoteListDTO toListDTO(WorldNotesNote entity);
 
-    // WRITE: Keine automatische Verknüpfung von Folder, Links, Kategorien!
+    List<NoteListDTO> toListDTOs(List<WorldNotesNote> entities);
+
+
+    // WRITE DTO → ENTITY ---------------------------------------------
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "folder", ignore = true)
-    @Mapping(target = "categories", ignore = true)
     @Mapping(target = "links", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "folder", ignore = true)
+    @Mapping(target = "category", ignore = true)
     WorldNotesNote toEntity(NoteWriteDTO dto);
+
+
+    // UPDATE ---------------------------------------------------------
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "links", ignore = true)
+    @Mapping(target = "folder", ignore = true)
+    @Mapping(target = "category", ignore = true)
+    void updateEntityFromDTO(NoteWriteDTO dto, @MappingTarget WorldNotesNote entity);
+
+
+    // HELPER ---------------------------------------------------------
+    default List<Long> mapLinks(List<WorldNotesLink> links) {
+        if (links == null) return List.of();
+        return links.stream()
+                .map(WorldNotesLink::getId)
+                .collect(Collectors.toList());
+    }
 }
 

@@ -1,22 +1,11 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
 
-import java.util.List;
-import lombok.*;
+import java.time.Instant;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Getter
-@Setter
-public class NoteListDTO {
-
-    private Long id;
-    private String title;
-    private Long folderId;
-    private String folderName;
-
-    private List<String> categories;
-
-}
+public record NoteListDTO(
+        Long id,
+        String title,
+        Long folderId,
+        Instant updatedAt
+) {}

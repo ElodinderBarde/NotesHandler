@@ -1,12 +1,11 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
-
 import java.time.Instant;
 
-public record FolderReadDTO(
+public record CategoryReadDTO(
         Long id,
         String name,
         Long userId,
-        Long categoryId,
-        Long parentId
+        Instant createdAt,
+        Instant updatedAt
 ) {}

@@ -1,20 +1,16 @@
 package ch.elodin.project.NotesHandler.controller.notes;
 
+import ch.elodin.project.NotesHandler.entity.AppUser;
+import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesNoteMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import ch.elodin.project.NotesHandler.service.notes.WorldNotesNoteService;
 import ch.elodin.project.NotesHandler.dto.notes.NoteListDTO;
 import ch.elodin.project.NotesHandler.dto.notes.NoteReadDTO;
 import ch.elodin.project.NotesHandler.dto.notes.NoteWriteDTO;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 
 
@@ -26,41 +22,33 @@ public class WorldNotesNoteController {
 
     private final WorldNotesNoteService noteService;
 
-    // Alle Notes eines Nutzers
+
+    @PutMapping("/{id}")
+    public ResponseEntity<NoteReadDTO> update(
+            @PathVariable Long id,
+            @RequestBody NoteWriteDTO dto) {
+
+        return ResponseEntity.ok(noteService.updateNote(id, dto));
+    }
+
     @GetMapping
-    public List<NoteListDTO> getAllNotes(@RequestParam Long userId) {
-        return noteService.getAllNotes(userId);
+    public ResponseEntity<List<NoteListDTO>> getAll() {
+        return ResponseEntity.ok(noteService.getNotes());
     }
 
-    // Einzelne Note
-    @GetMapping("/{noteId}")
-    public NoteReadDTO getNote(@PathVariable Long noteId, @RequestParam Long userId) {
-        return noteService.getNote(noteId, userId);
-    }
-
-    // Neue Note
     @PostMapping
-    public NoteReadDTO createNote(@RequestBody NoteWriteDTO dto, @RequestParam Long userId) {
-        return noteService.createNote(dto, userId);
+    public ResponseEntity<NoteReadDTO> create(@RequestBody NoteWriteDTO dto) {
+        return ResponseEntity.ok(noteService.create(dto));
     }
 
-    // Note aktualisieren
-    @PutMapping("/{noteId}")
-    public NoteReadDTO updateNote(
-            @PathVariable Long noteId,
-            @RequestBody NoteWriteDTO dto,
-            @RequestParam Long userId
-    ) {
-        return noteService.updateNote(noteId, dto, userId);
+    @GetMapping("/folder/{folderId}")
+    public ResponseEntity<List<NoteListDTO>> getAllInFolder(@PathVariable Long folderId) {
+        return ResponseEntity.ok(noteService.getAllInFolder(folderId));
     }
 
-    // Note löschen
-    @DeleteMapping("/{noteId}")
-    public ResponseEntity<?> deleteNote(
-            @PathVariable Long noteId,
-            @RequestParam Long userId
-    ) {
-        noteService.deleteNote(noteId, userId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        noteService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

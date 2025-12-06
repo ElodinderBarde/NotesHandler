@@ -1,6 +1,6 @@
 package ch.elodin.project.NotesHandler.controller;
 
-import ch.elodin.project.NotesHandler.repository.AppUserRepository;
+import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

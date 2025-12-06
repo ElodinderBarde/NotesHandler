@@ -1,45 +1,45 @@
 package ch.elodin.project.NotesHandler.entity.notes;
 
 import ch.elodin.project.NotesHandler.entity.AppUser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Entity
+@Table(name = "worldnotes_folder")
 @Getter
 @Setter
-@Entity
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "worldnotes_folder")
+@AllArgsConstructor
 public class WorldNotesFolder extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String name;
 
+    // User
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    @OneToMany
-    @JoinColumn(name = "folder_id")  // FK in Note
+    // Belongs to a category
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "category_id", nullable = true )
+    private WorldNotesCategory category;
+
+    // Notes inside the folder
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorldNotesNote> notes = new ArrayList<>();
 
-
-    @OneToMany(mappedBy = "parentFolder")
-    private List<WorldNotesFolder> childrenFolder = new ArrayList<>();
-
     @ManyToOne
-    @JoinColumn(name = "parent_folder_id")
+    @JoinColumn(name = "parent_id")
+    @JsonIgnore
     private WorldNotesFolder parentFolder;
 
-    public void setParentFolder(WorldNotesFolder parent) {
-        if (parent != null && parent.equals(this)) {
-            throw new IllegalArgumentException("A folder cannot be its own parent.");
-        }
-        this.parentFolder = parent;
-    }
+    @OneToMany(mappedBy = "parentFolder", cascade =  CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<WorldNotesFolder> children = new ArrayList<>();
 
 }

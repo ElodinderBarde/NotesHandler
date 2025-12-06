@@ -1,17 +1,15 @@
 package ch.elodin.project.NotesHandler.entity.notes;
 
-import ch.elodin.project.NotesHandler.entity.AppUser;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
+import ch.elodin.project.NotesHandler.entity.AppUser;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "worldnotes_note")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorldNotesNote extends BaseEntity {
@@ -22,15 +20,22 @@ public class WorldNotesNote extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    // User
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Folder
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "folder_id", nullable = true)
     private WorldNotesFolder folder;
 
-    @ManyToMany(mappedBy = "notes")
-    private List<WorldNotesCategory> categories = new ArrayList<>();
-
-    @OneToMany(mappedBy = "note")
+    // Links in the note
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorldNotesLink> links = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = true)
+    private WorldNotesCategory category;
+
 }

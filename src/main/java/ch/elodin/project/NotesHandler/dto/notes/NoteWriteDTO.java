@@ -1,26 +1,22 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
-
 import java.util.List;
-import lombok.*;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Getter
-@Setter
-public class NoteWriteDTO {
+public record NoteWriteDTO(
+        Long folderId,
+        Long categoryId,
+        List<Long> linkIds,
+        String title,
+        String content,
+        Integer version,
+        String createdAt,
+        String updatedAt
+) {
+    public Long getFolderId() {
+        return folderId;
+    }
 
-    private String title;
-    private String content;
-
-    private Long folderId;
-
-    private List<Long> categoryIds;
-
-    private List<String> newCategories;
-
-    private List<String> links;
-
+    public Long getCategoryId() {
+        return categoryId;
+    }
 }

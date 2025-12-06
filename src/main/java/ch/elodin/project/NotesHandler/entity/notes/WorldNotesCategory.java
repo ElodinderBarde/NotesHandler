@@ -2,35 +2,41 @@ package ch.elodin.project.NotesHandler.entity.notes;
 
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
 
+
+@Entity
+@Table(name = "worldnotes_category")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
-@Entity
-@Table(name = "worldnotes_category")
 public class WorldNotesCategory extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = true) // <- nicht null aus DB entfernen
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = true)
     private AppUser user;
 
-    @ManyToMany
-    @JoinTable(
-            name = "worldnotes_note_category",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "note_id")
-    )
-    private List<WorldNotesNote> notes = new ArrayList<>();
+    @Column(nullable = true)
+    private Instant createdAt;
 
+    @Column(nullable = true)
+    private Instant updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        Instant now = Instant.now();
+        if (createdAt == null) createdAt = now;
+        if (updatedAt == null) updatedAt = now;
+    }
+
+    public void preUpdate() {
+        updatedAt = Instant.now();
+    }
 }
+

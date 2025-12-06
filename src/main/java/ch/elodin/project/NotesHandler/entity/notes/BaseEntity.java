@@ -1,37 +1,32 @@
 package ch.elodin.project.NotesHandler.entity.notes;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
-
+@MappedSuperclass
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@MappedSuperclass
 public abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Version
+    private Long version;
+
+    @Column(nullable = false ,updatable = false)
+    private Instant createdAt = Instant.now();
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private Instant updatedAt = Instant.now();
 
     @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    protected void onUpdate() {
+        this.updatedAt = Instant.now();
     }
-
-
 }
-

@@ -1,4 +1,4 @@
-package ch.elodin.project.NotesHandler.repository;
+package ch.elodin.project.NotesHandler.Repository;
 
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;

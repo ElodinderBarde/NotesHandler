@@ -1,8 +1,8 @@
 package ch.elodin.project.NotesHandler.service.notes;
 
+import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesCategoryRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesFolderRepository;
-import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesLinkRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesNoteRepository;
 import ch.elodin.project.NotesHandler.dto.notes.NoteListDTO;
 import ch.elodin.project.NotesHandler.dto.notes.NoteReadDTO;
@@ -10,243 +10,109 @@ import ch.elodin.project.NotesHandler.dto.notes.NoteWriteDTO;
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesCategory;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
-import ch.elodin.project.NotesHandler.entity.notes.WorldNotesLink;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesNote;
-import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesLinkMapper;
+import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesFolderMapper;
 import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesNoteMapper;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class WorldNotesNoteService {
 
     private final WorldNotesNoteRepository noteRepository;
-    private final WorldNotesCategoryRepository categoryRepository;
     private final WorldNotesFolderRepository folderRepository;
-    private final WorldNotesLinkRepository linkRepository;
-    private final ch.elodin.project.NotesHandler.repository.AppUserRepository userRepository;
-
+    private final WorldNotesCategoryRepository categoryRepository;
+    private final AppUserRepository userRepository;
     private final WorldNotesNoteMapper noteMapper;
-    private final WorldNotesLinkMapper linkMapper;
+    private final WorldNotesFolderMapper worldNotesFolderMapper;
 
-    public NoteReadDTO createNote(NoteWriteDTO dto, Long userId) {
+    private AppUser getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+    }
 
-        AppUser user = findUser(userId);
+    public NoteReadDTO createNote(NoteWriteDTO dto) {
+        AppUser user = getCurrentUser();
 
-        WorldNotesNote note = new WorldNotesNote();
-        note.setTitle(dto.getTitle());
-        note.setContent(dto.getContent());
+        WorldNotesNote note = noteMapper.toEntity(dto);
         note.setUser(user);
 
-        // Folder optional
         if (dto.getFolderId() != null) {
-            note.setFolder(resolveFolder(dto.getFolderId(), userId));
+            WorldNotesFolder folder = folderRepository.findById(dto.getFolderId())
+                    .orElseThrow(() -> new RuntimeException("Folder not found"));
+            note.setFolder(folder);
         }
 
-        // Kategorien (IDs + neue Kategorien)
-        note.setCategories(resolveCategories(dto.getCategoryIds(), dto.getNewCategories(), userId));
+        if (dto.getCategoryId() != null) {
+            List<WorldNotesCategory> category =
+                    categoryRepository.findAllById(Collections.singleton(dto.getCategoryId()));
+            note.setCategory((WorldNotesCategory) category);
+        }
 
-        // Note zuerst speichern, damit sie eine ID hat
-        note = noteRepository.save(note);
-
-        // Links parsen (externe + interne Links)
-        List<WorldNotesLink> links = parseMarkdownLinks(dto.getLinks(), note, userId);
-        linkRepository.saveAll(links);
-        note.setLinks(links);
-
-        return buildNoteDTOWithBacklinks(note);
+        noteRepository.save(note);
+        return noteMapper.toReadDTO(note);
     }
 
-    public List<NoteListDTO> getAllNotes(Long userId) {
-        return noteRepository.findAllByUserId(userId)
-                .stream()
-                .map(noteMapper::toListDTO)
-                .toList();
-    }
+    public NoteReadDTO updateNote(Long id, NoteWriteDTO dto) {
+        AppUser user = getCurrentUser();
 
-    // ----------------------------------------
-    // UPDATE NOTE
-    // ----------------------------------------
-    public NoteReadDTO updateNote(Long noteId, NoteWriteDTO dto, Long userId) {
+        WorldNotesNote note = noteRepository.findByFolderAndUserId(null, user.getId()).stream()
+                        . filter(n -> n.getId().equals(id))
+                        . findFirst()
+                        .orElseThrow(() -> new RuntimeException("Note not found"));
+        noteMapper.updateEntityFromDTO(dto, note);
 
-        WorldNotesNote note = getNoteOwned(noteId, userId);
-
-        note.setTitle(dto.getTitle());
-        note.setContent(dto.getContent());
-
+        // Folder
         if (dto.getFolderId() != null) {
-            note.setFolder(resolveFolder(dto.getFolderId(), userId));
-        } else {
-            note.setFolder(null);
+            WorldNotesFolder folder = folderRepository.findById(dto.getFolderId())
+                    .orElseThrow(() -> new RuntimeException("Folder not found"));
+            note.setFolder(folder);
         }
 
-        note.setCategories(resolveCategories(dto.getCategoryIds(), dto.getNewCategories(), userId));
-
-        note = noteRepository.save(note);
-
-        // Links komplett neu generieren
-        linkRepository.deleteAll(note.getLinks());
-        List<WorldNotesLink> newLinks = parseMarkdownLinks(dto.getLinks(), note, userId);
-        linkRepository.saveAll(newLinks);
-        note.setLinks(newLinks);
-
-        return buildNoteDTOWithBacklinks(note);
-    }
-
-
-    // ----------------------------------------
-    // DELETE NOTE
-    // ----------------------------------------
-    public void deleteNote(Long noteId, Long userId) {
-        WorldNotesNote note = getNoteOwned(noteId, userId);
-
-        // outgoing links löschen
-        linkRepository.deleteAll(note.getLinks());
-
-        // incoming links löschen (Backlinks)
-        List<WorldNotesLink> incoming = linkRepository.findAllByTargetNoteId(noteId);
-        linkRepository.deleteAll(incoming);
-
-        noteRepository.delete(note);
-    }
-
-
-    // ----------------------------------------
-    // READ NOTE
-    // ----------------------------------------
-    public NoteReadDTO getNote(Long noteId, Long userId) {
-        WorldNotesNote note = getNoteOwned(noteId, userId);
-        return buildNoteDTOWithBacklinks(note);
-    }
-
-
-    // ----------------------------------------
-    // PRIVATE HELPERS
-    // ----------------------------------------
-
-    private AppUser findUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-    }
-
-    private WorldNotesNote getNoteOwned(Long noteId, Long userId) {
-        return noteRepository.findByIdAndUserId(noteId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Note not found for this user"));
-    }
-
-    private WorldNotesFolder resolveFolder(Long folderId, Long userId) {
-        return folderRepository.findByIdAndUserId(folderId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Folder not found"));
-    }
-
-
-    // ----------------------------------------
-    // CATEGORY RESOLUTION
-    // ----------------------------------------
-    private List<WorldNotesCategory> resolveCategories(List<Long> categoryIds,
-                                                       List<String> newCategories,
-                                                       Long userId) {
-
-        List<WorldNotesCategory> result = new ArrayList<>();
-
-        // vorhandene Kategorien per ID
-        if (categoryIds != null) {
-            for (Long id : categoryIds) {
-                categoryRepository.findByIdAndUserId(id, userId)
-                        .ifPresent(result::add);
-            }
+        // Kategorien
+        if (dto.getCategoryId() != null) {
+            List<WorldNotesCategory> category =
+                    categoryRepository.findAllById(Collections.singleton(dto.getCategoryId()));
+            note.setCategory((WorldNotesCategory) category);
         }
 
-        // neue Kategorien per Name
-        if (newCategories != null) {
-            for (String name : newCategories) {
-
-                Optional<WorldNotesCategory> existing =
-                        categoryRepository.findByNameIgnoreCaseAndUserId(name, userId);
-
-                if (existing.isPresent()) {
-                    result.add(existing.get());
-                } else {
-                    WorldNotesCategory cat = new WorldNotesCategory();
-                    cat.setName(name);
-                    cat.setUser(findUser(userId));
-                    result.add(categoryRepository.save(cat));
-                }
-            }
-        }
-
-        return result;
+        noteRepository.save(note);
+        return noteMapper.toReadDTO(note);
     }
 
-
-    // ----------------------------------------
-    // LINK PARSING (Markdown)
-    // ----------------------------------------
-    private List<WorldNotesLink> parseMarkdownLinks(List<String> links,
-                                                    WorldNotesNote note,
-                                                    Long userId) {
-
-        if (links == null) return List.of();
-
-        List<WorldNotesLink> result = new ArrayList<>();
-
-        for (String raw : links) {
-
-            WorldNotesLink link = new WorldNotesLink();
-            link.setNote(note);
-
-            if (raw.startsWith("[[") && raw.endsWith("]]")) {
-                // interner Link
-                String title = raw.substring(2, raw.length() - 2);
-                resolveInternalLink(note, link, title, userId);
-
-            } else {
-                // externer Link
-                link.setUrl(raw);
-                link.setLinkText(raw);
-            }
-
-            result.add(link);
-        }
-
-        return result;
+    public List<NoteListDTO> getNotes() {
+        AppUser user = getCurrentUser();
+        return noteMapper.toListDTOs(noteRepository.findByUserId(user.getId()));
     }
 
-
-    // ----------------------------------------
-    // INTERNAL LINK RESOLUTION
-    // ----------------------------------------
-    private void resolveInternalLink(WorldNotesNote note,
-                                     WorldNotesLink link,
-                                     String targetTitle,
-                                     Long userId) {
-
-        Optional<WorldNotesNote> target =
-                noteRepository.findByTitleContainingIgnoreCaseAndUserId(targetTitle, userId)
-                        .stream().findFirst();
-
-        target.ifPresent(link::setTargetNote);
-        link.setLinkText("[[" + targetTitle + "]]");
+    public @Nullable NoteReadDTO create(NoteWriteDTO dto) {
+        AppUser user = getCurrentUser();
+        WorldNotesNote note = noteMapper.toEntity(dto);
+        note.setUser(user);
+        return noteMapper.toReadDTO(noteRepository.save(note));
     }
 
+    public @Nullable List<NoteListDTO> getAllInFolder(Long folderId) {
+        AppUser user = getCurrentUser();
+        WorldNotesFolder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new RuntimeException("Folder not found"));
+        return noteMapper.toListDTOs(noteRepository.findByFolderAndUserId(folder, user.getId()));
 
-    // ----------------------------------------
-    // DTO BUILDER INCLUDING BACKLINKS
-    // ----------------------------------------
-    private NoteReadDTO buildNoteDTOWithBacklinks(WorldNotesNote note) {
+    }
 
-        NoteReadDTO dto = noteMapper.toReadDTO(note);
-
-        List<WorldNotesLink> backlinks = linkRepository.findAllByTargetNoteId(note.getId());
-        dto.setIncomingLinks(
-                backlinks.stream().map(linkMapper::toDTO).toList()
-        );
-
-        return dto;
+    public void delete(Long id) {
+        AppUser user = getCurrentUser();
+        WorldNotesNote note = noteRepository.findByFolderAndUserId(null, user.getId()).stream()
+                . filter(n -> n.getId().equals(id))
+                . findFirst()
+                .orElseThrow(() -> new RuntimeException("Note not found"));
+    noteRepository.delete(note);
     }
 }

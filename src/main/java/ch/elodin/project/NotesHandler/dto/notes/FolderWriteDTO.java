@@ -1,17 +1,14 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
-import lombok.*;
+import lombok.Data;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Getter
-@Setter
-public class FolderWriteDTO {
-
-    private String name;
-    private Long parentFolderId;
-
-
+public record FolderWriteDTO(
+        Long userId,
+        Long categoryId,
+        Long parentId,
+        String name
+) {
+    public Long getParentId() {
+        return parentId;
+    }
 }

@@ -2,7 +2,7 @@ package ch.elodin.project.NotesHandler.service;
 
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.enums.RoleEnum;
-import ch.elodin.project.NotesHandler.repository.AppUserRepository;
+import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
