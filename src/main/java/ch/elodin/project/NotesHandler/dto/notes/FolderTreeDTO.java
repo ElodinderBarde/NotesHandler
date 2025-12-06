@@ -1,6 +1,5 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
-
 import java.util.List;
 
 public record FolderTreeDTO(
@@ -8,12 +7,7 @@ public record FolderTreeDTO(
         String name,
         List<FolderTreeDTO> children
 ) {
-
     public FolderTreeDTO(FolderReadDTO readDTO, List<FolderTreeDTO> children) {
-        this(
-                readDTO.id(),
-                readDTO.name(),
-                children
-        );
+        this(readDTO.id(), readDTO.name(), children);
     }
 }

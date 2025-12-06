@@ -2,6 +2,7 @@ package ch.elodin.project.NotesHandler.service.notes;
 
 import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesCategoryRepository;
+import ch.elodin.project.NotesHandler.dto.notes.CategoryReadDTO;
 import ch.elodin.project.NotesHandler.dto.notes.CategoryWriteDTO;
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesCategory;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -21,28 +21,49 @@ public class WorldNotesCategoryService {
     private final AppUserRepository userRepo;
     private final WorldNotesCategoryMapper mapper;
 
-    public WorldNotesCategory createCategory(CategoryWriteDTO dto) {
-
-        WorldNotesCategory entity = mapper.toEntity(dto);
-
-        if (dto.userId() != null) {
-            entity.setUser(userRepo.findById(dto.userId())
-                    .orElseThrow(() -> new RuntimeException("User not found")));
-        }
-
-        Instant now = Instant.now();
-        entity.setCreatedAt(now);
-        entity.setUpdatedAt(now);
-        entity.setVersion(0L);
-
-        return repo.save(entity);
+    private AppUser getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
-    public List<WorldNotesCategory> getCategory() {
-        return repo.findAll();
+    // CREATE
+    public CategoryReadDTO create(CategoryWriteDTO dto) {
+        AppUser user = getCurrentUser();
+
+        WorldNotesCategory category = mapper.toEntity(dto);
+        category.setUser(user);
+
+        repo.save(category);
+        return mapper.toReadDTO(category);
     }
 
-    public void deleteCategory(Long id) {
-        repo.deleteById(id);
+    // UPDATE
+    public CategoryReadDTO update(Long id, CategoryWriteDTO dto) {
+        AppUser user = getCurrentUser();
+
+        WorldNotesCategory category = repo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        mapper.updateFromDTO(dto, category);
+
+        repo.save(category);
+        return mapper.toReadDTO(category);
+    }
+
+    // DELETE
+    public void delete(Long id) {
+        AppUser user = getCurrentUser();
+
+        WorldNotesCategory category = repo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        repo.delete(category);
+    }
+
+    // GET ALL
+    public List<CategoryReadDTO> getAll() {
+        AppUser user = getCurrentUser();
+        return mapper.toReadDTOs(repo.findAllByUser(user));
     }
 }

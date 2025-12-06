@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface WorldNotesCategoryRepository extends JpaRepository<WorldNotesCategory, Long> {
+public interface WorldNotesCategoryRepository
+        extends JpaRepository<WorldNotesCategory, Long> {
 
     List<WorldNotesCategory> findAllByUser(AppUser user);
 
     Optional<WorldNotesCategory> findByIdAndUser(Long id, AppUser user);
 
-    Optional<WorldNotesCategory> findByName(String name);
+    Optional<WorldNotesCategory> findByNameAndUser(String name, AppUser user);
 }

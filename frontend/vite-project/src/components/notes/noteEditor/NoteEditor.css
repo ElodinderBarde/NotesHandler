@@ -1,0 +1,39 @@
+.note-editor {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.note-title-input {
+    font-size: 1.4em;
+    font-weight: bold;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.note-content-input {
+    flex: 1;
+    padding: 10px;
+    resize: none;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-save {
+    background: #4caf50;
+    padding: 8px 15px;
+    color: white;
+}
+
+.btn-delete {
+    background: #e53935;
+    padding: 8px 15px;
+    color: white;
+}

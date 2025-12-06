@@ -7,5 +7,6 @@ public record NoteListDTO(
         Long id,
         String title,
         Long folderId,
-        Instant updatedAt
+        Instant updatedAt,
+        String content
 ) {}

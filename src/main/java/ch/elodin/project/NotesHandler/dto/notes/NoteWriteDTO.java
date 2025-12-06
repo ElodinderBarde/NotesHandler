@@ -1,17 +1,15 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
-import java.util.List;
 
 public record NoteWriteDTO(
-        Long folderId,
+        Long id,
+        Long userId,
         Long categoryId,
-        List<Long> linkIds,
+        Long folderId,
         String title,
         String content,
-        Integer version,
-        String createdAt,
-        String updatedAt
-) {
+        Long links
+)  {
     public Long getFolderId() {
         return folderId;
     }

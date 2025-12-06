@@ -2,6 +2,7 @@ package ch.elodin.project.NotesHandler.controller;
 
 import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.entity.AppUser;
+import ch.elodin.project.NotesHandler.service.UserBootstrapService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,15 +12,19 @@ public class AppUserController {
 
 
     private final AppUserRepository appUserRepository;
+    private final UserBootstrapService userBootstrapService;
 
-    public AppUserController(AppUserRepository appUserRepository) {
+    public AppUserController(AppUserRepository appUserRepository, UserBootstrapService userBootstrapService) {
         this.appUserRepository = appUserRepository;
+        this.userBootstrapService = userBootstrapService;
     }
 
 
     @PostMapping("/register")
     public ResponseEntity<AppUser> save(@RequestBody AppUser appUser) {
         AppUser savedUser = appUserRepository.save(appUser);
+        userBootstrapService.initializeDefaultData(appUser);
+
         return ResponseEntity.ok(savedUser);
     }
 

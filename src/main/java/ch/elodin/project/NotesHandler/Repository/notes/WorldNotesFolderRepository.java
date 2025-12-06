@@ -11,17 +11,18 @@ import java.util.Optional;
 @Repository
 public interface WorldNotesFolderRepository extends JpaRepository<WorldNotesFolder, Long> {
 
+    // Alle Folder eines Users
     List<WorldNotesFolder> findAllByUser(AppUser user);
 
+    // Single Folder eines Users
     Optional<WorldNotesFolder> findByIdAndUser(Long id, AppUser user);
 
-    List<WorldNotesFolder> findAllRootsByUser(AppUser user);
+    // Kinder eines Parent-Folders
+    List<WorldNotesFolder> findByParentFolder(WorldNotesFolder parentFolder);
 
+    // Root-Folder (parentFolder IS NULL)
+    List<WorldNotesFolder> findByUserAndParentFolderIsNull(AppUser user);
+
+    // Optional: Name-Suche pro User
     Optional<WorldNotesFolder> findByNameAndUser(String name, AppUser user);
-
-    Optional<WorldNotesFolder> findByName(String name);
-
-    Optional<WorldNotesFolder> findByIdAndUserId(Long id, Long userId);
-
-
 }

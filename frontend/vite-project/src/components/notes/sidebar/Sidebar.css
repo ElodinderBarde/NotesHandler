@@ -1,0 +1,50 @@
+.sidebar {
+    width: 220px;
+    background: #f8f9fb;
+    border-right: 1px solid #ddd;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.btn-add-folder {
+    background: #4a6cf7;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.folder-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.folder-item {
+    display: flex;
+    gap: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.folder-item:hover {
+    background: #e9ecf7;
+}
+
+.folder-item.selected {
+    background: #dbe5ff;
+    border-left: 4px solid #4a6cf7;
+}
+
+.folder-icon {
+    font-size: 1.2em;
+}

@@ -1,14 +1,8 @@
 package ch.elodin.project.NotesHandler.dto.notes;
 
-import lombok.Data;
-
 public record FolderWriteDTO(
-        Long userId,
-        Long categoryId,
+        String name,
         Long parentId,
-        String name
+        Long categoryId
 ) {
-    public Long getParentId() {
-        return parentId;
-    }
 }

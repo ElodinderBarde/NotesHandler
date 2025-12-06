@@ -4,6 +4,7 @@ import Home from "./pages/home/Home";
 //import Dashboard from "./pages/dashboard/Dashboard";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute.jsx";
 import { AuthProvider } from "./context/AuthContext";
+import NotesPage from "./pages/notes/NotesPage.jsx";
 
 function App() {
     return (
@@ -13,7 +14,7 @@ function App() {
 
                 <Routes>
                     <Route path="/" element={<Home />} />
-
+                    <Route path="/Notes" element={<NotesPage />} />
                     <Route
                         path="/dashboard"
                         element={

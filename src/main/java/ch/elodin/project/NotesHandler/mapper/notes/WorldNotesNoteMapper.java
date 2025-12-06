@@ -3,17 +3,17 @@ package ch.elodin.project.NotesHandler.mapper.notes;
 import ch.elodin.project.NotesHandler.dto.notes.NoteListDTO;
 import ch.elodin.project.NotesHandler.dto.notes.NoteReadDTO;
 import ch.elodin.project.NotesHandler.dto.notes.NoteWriteDTO;
-import ch.elodin.project.NotesHandler.entity.notes.WorldNotesLink;
+import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesNote;
+import ch.elodin.project.NotesHandler.entity.notes.WorldNotesLink;
 import org.mapstruct.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface WorldNotesNoteMapper {
 
-    // READ DTO -------------------------------------------------------
+    // READ DTO
     @Mapping(target = "folderId", source = "folder.id")
     @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "linkIds", expression = "java(mapLinks(entity.getLinks()))")
@@ -21,39 +21,41 @@ public interface WorldNotesNoteMapper {
 
     List<NoteReadDTO> toReadDTOs(List<WorldNotesNote> entities);
 
-
-    // LIST DTO -------------------------------------------------------
     @Mapping(target = "folderId", source = "folder.id")
     NoteListDTO toListDTO(WorldNotesNote entity);
 
     List<NoteListDTO> toListDTOs(List<WorldNotesNote> entities);
 
-
-    // WRITE DTO → ENTITY ---------------------------------------------
+    // WRITE DTO → ENTITY
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "links", ignore = true)
     @Mapping(target = "folder", ignore = true)
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "links", ignore = true)
+
+    // Wichtig: BaseEntity-Felder ignorieren!
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
     WorldNotesNote toEntity(NoteWriteDTO dto);
 
-
-    // UPDATE ---------------------------------------------------------
+    // UPDATE
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "links", ignore = true)
     @Mapping(target = "folder", ignore = true)
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "links", ignore = true)
+
+    // BaseEntity-Felder ignorieren
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
     void updateEntityFromDTO(NoteWriteDTO dto, @MappingTarget WorldNotesNote entity);
 
-
-    // HELPER ---------------------------------------------------------
+    // Helper
     default List<Long> mapLinks(List<WorldNotesLink> links) {
-        if (links == null) return List.of();
-        return links.stream()
-                .map(WorldNotesLink::getId)
-                .collect(Collectors.toList());
+        return links == null ? List.of() :
+                links.stream().map(WorldNotesLink::getId).toList();
     }
 }
-

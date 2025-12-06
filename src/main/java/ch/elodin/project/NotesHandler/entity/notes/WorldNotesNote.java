@@ -14,6 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 public class WorldNotesNote extends BaseEntity {
 
+
+
     @Column(nullable = false)
     private String title;
 
@@ -26,7 +28,7 @@ public class WorldNotesNote extends BaseEntity {
     private AppUser user;
 
     // Folder
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "folder_id", nullable = true)
     private WorldNotesFolder folder;
 

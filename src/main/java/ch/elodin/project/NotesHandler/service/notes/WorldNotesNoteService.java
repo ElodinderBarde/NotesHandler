@@ -11,14 +11,13 @@ import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesCategory;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesNote;
-import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesFolderMapper;
 import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesNoteMapper;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -29,8 +28,7 @@ public class WorldNotesNoteService {
     private final WorldNotesFolderRepository folderRepository;
     private final WorldNotesCategoryRepository categoryRepository;
     private final AppUserRepository userRepository;
-    private final WorldNotesNoteMapper noteMapper;
-    private final WorldNotesFolderMapper worldNotesFolderMapper;
+    private final WorldNotesNoteMapper mapper;
 
     private AppUser getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -38,81 +36,101 @@ public class WorldNotesNoteService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
-    public NoteReadDTO createNote(NoteWriteDTO dto) {
+    // ----------------------------------------------------------------------
+    // CREATE
+    // ----------------------------------------------------------------------
+    public NoteReadDTO create(NoteWriteDTO dto) {
         AppUser user = getCurrentUser();
 
-        WorldNotesNote note = noteMapper.toEntity(dto);
+        WorldNotesNote note = mapper.toEntity(dto);
         note.setUser(user);
+        note.setCreatedAt(Instant.now());
+        note.setUpdatedAt(Instant.now());
+        note.setVersion(0L);
 
-        if (dto.getFolderId() != null) {
-            WorldNotesFolder folder = folderRepository.findById(dto.getFolderId())
+        // Folder setzen
+        if (dto.folderId() != null) {
+            WorldNotesFolder folder = folderRepository.findById(dto.folderId())
                     .orElseThrow(() -> new RuntimeException("Folder not found"));
             note.setFolder(folder);
         }
 
-        if (dto.getCategoryId() != null) {
-            List<WorldNotesCategory> category =
-                    categoryRepository.findAllById(Collections.singleton(dto.getCategoryId()));
-            note.setCategory((WorldNotesCategory) category);
+        // Kategorie setzen
+        if (dto.categoryId() != null) {
+            WorldNotesCategory category = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            note.setCategory(category);
         }
 
         noteRepository.save(note);
-        return noteMapper.toReadDTO(note);
+        return mapper.toReadDTO(note);
     }
 
+    // ----------------------------------------------------------------------
+    // UPDATE
+    // ----------------------------------------------------------------------
     public NoteReadDTO updateNote(Long id, NoteWriteDTO dto) {
         AppUser user = getCurrentUser();
 
-        WorldNotesNote note = noteRepository.findByFolderAndUserId(null, user.getId()).stream()
-                        . filter(n -> n.getId().equals(id))
-                        . findFirst()
-                        .orElseThrow(() -> new RuntimeException("Note not found"));
-        noteMapper.updateEntityFromDTO(dto, note);
+        WorldNotesNote note = noteRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new RuntimeException("Note not found"));
+
+        // Titel/Content
+        if (dto.title() != null) note.setTitle(dto.title());
+        if (dto.content() != null) note.setContent(dto.content());
 
         // Folder
-        if (dto.getFolderId() != null) {
-            WorldNotesFolder folder = folderRepository.findById(dto.getFolderId())
+        if (dto.folderId() != null) {
+            WorldNotesFolder folder = folderRepository.findById(dto.folderId())
                     .orElseThrow(() -> new RuntimeException("Folder not found"));
             note.setFolder(folder);
         }
 
-        // Kategorien
-        if (dto.getCategoryId() != null) {
-            List<WorldNotesCategory> category =
-                    categoryRepository.findAllById(Collections.singleton(dto.getCategoryId()));
-            note.setCategory((WorldNotesCategory) category);
+        // Kategorie
+        if (dto.categoryId() != null) {
+            WorldNotesCategory category = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            note.setCategory(category);
         }
 
+        note.setUpdatedAt(Instant.now());
         noteRepository.save(note);
-        return noteMapper.toReadDTO(note);
+
+        return mapper.toReadDTO(note);
     }
 
-    public List<NoteListDTO> getNotes() {
+    // ----------------------------------------------------------------------
+    // LIST BY FOLDER
+    // ----------------------------------------------------------------------
+    public List<NoteListDTO> getAllInFolder(Long folderId) {
         AppUser user = getCurrentUser();
-        return noteMapper.toListDTOs(noteRepository.findByUserId(user.getId()));
-    }
 
-    public @Nullable NoteReadDTO create(NoteWriteDTO dto) {
-        AppUser user = getCurrentUser();
-        WorldNotesNote note = noteMapper.toEntity(dto);
-        note.setUser(user);
-        return noteMapper.toReadDTO(noteRepository.save(note));
-    }
-
-    public @Nullable List<NoteListDTO> getAllInFolder(Long folderId) {
-        AppUser user = getCurrentUser();
         WorldNotesFolder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new RuntimeException("Folder not found"));
-        return noteMapper.toListDTOs(noteRepository.findByFolderAndUserId(folder, user.getId()));
 
+        return mapper.toListDTOs(
+                noteRepository.findByFolderAndUserId(folder, user.getId())
+        );
     }
 
+    // ----------------------------------------------------------------------
+    // DELETE
+    // ----------------------------------------------------------------------
     public void delete(Long id) {
         AppUser user = getCurrentUser();
-        WorldNotesNote note = noteRepository.findByFolderAndUserId(null, user.getId()).stream()
-                . filter(n -> n.getId().equals(id))
-                . findFirst()
+
+        WorldNotesNote note = noteRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new RuntimeException("Note not found"));
-    noteRepository.delete(note);
+
+        noteRepository.delete(note);
     }
-}
+
+    public List<NoteListDTO> getAllNotes() {
+        AppUser user = getCurrentUser();
+        return mapper.toListDTOs(
+                noteRepository.findByUserId(user.getId())
+        );
+                }
+    }
+
+

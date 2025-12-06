@@ -25,29 +25,34 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        // USER erstellen, falls keiner existiert
-        AppUser user = userRepo.findByUsername("admin").orElse(null);
+        // DEFAULT USER ---------------------------------------------------------
+        AppUser user = userRepo.findByUsername("Elodin").orElse(null);
         if (user == null) {
             user = new AppUser();
             user.setUsername("Elodin");
             user.setEmail("Elodin@local");
             user.setPassword(passwordEncoder.encode("123456789"));
-            user.setRole(RoleEnum.valueOf("ADMIN"));
+            user.setRole(RoleEnum.ADMIN);
             userRepo.save(user);
-            System.out.println("Default-User 'admin' erstellt");
+            System.out.println("✔ Default-User 'Elodin' erstellt");
         }
 
-        WorldNotesCategory category = (WorldNotesCategory) categoryRepo.findByName("Allgemein").orElse(null);
+        // DEFAULT CATEGORY -----------------------------------------------------
+        WorldNotesCategory category =
+                categoryRepo.findByNameAndUser("Allgemein", user).orElse(null);
+
         if (category == null) {
             category = new WorldNotesCategory();
             category.setName("Allgemein");
             category.setUser(user);
             categoryRepo.save(category);
-            System.out.println("✔ Default-Kategorie 'Allgemein' erstellt");
+            System.out.println("✔ Kategorie 'Allgemein' erstellt");
         }
 
-        // Root-Folder erstellen
-        WorldNotesFolder root = (WorldNotesFolder) folderRepo.findByNameAndUser("Root", user).orElse(null);
+        // DEFAULT ROOT FOLDER --------------------------------------------------
+        WorldNotesFolder root =
+                folderRepo.findByNameAndUser("Root", user).orElse(null);
+
         if (root == null) {
             root = new WorldNotesFolder();
             root.setName("Root");
@@ -57,14 +62,22 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("✔ Root-Ordner erstellt");
         }
 
-        // Begrüßungsnotiz erstellen
+        // DEFAULT WELCOME NOTE -------------------------------------------------
         if (noteRepo.count() == 0) {
             WorldNotesNote note = new WorldNotesNote();
             note.setTitle("Willkommen in NotesHandler");
-            note.setContent("Dies ist deine erste Notiz. Viel Erfolg beim Organisieren!\n Diese Notizplattform ist für Markdwon optimiert. Viel Spaß beim Schreiben!\n\n Wenn du zu Beginn Hilfe benötigst, Syntaxhilfen findest du auf [Markdown](www.markdown.de).");
+            note.setContent("""
+                Dies ist deine erste Notiz.
+
+                Die Plattform unterstützt **Markdown**.
+                Viel Spaß beim Schreiben!
+
+                Syntaxhilfe → www.markdown.de
+            """);
             note.setFolder(root);
             note.setUser(user);
             noteRepo.save(note);
+
             System.out.println("✔ Begrüßungsnotiz erstellt");
         }
     }

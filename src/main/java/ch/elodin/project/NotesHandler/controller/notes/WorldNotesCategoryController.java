@@ -15,24 +15,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WorldNotesCategoryController {
 
-    private final WorldNotesCategoryService categoryService;
-    private final WorldNotesCategoryMapper mapper;
+    private final WorldNotesCategoryService service;
 
-    @PostMapping
-    public CategoryReadDTO create(@RequestBody CategoryWriteDTO dto) {
-        return mapper.toReadDTO(categoryService.createCategory(dto));
+    @GetMapping
+    public ResponseEntity<List<CategoryReadDTO>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<CategoryDTO>> getAll() {
-        return ResponseEntity.ok(
-                mapper.toDTOs(categoryService.getCategory())
-        );
+    @PostMapping
+    public ResponseEntity<CategoryReadDTO> create(@RequestBody CategoryWriteDTO dto) {
+        return ResponseEntity.ok(service.create(dto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryReadDTO> update(
+            @PathVariable Long id,
+            @RequestBody CategoryWriteDTO dto
+    ) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
