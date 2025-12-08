@@ -1,6 +1,8 @@
 .notes-container {
     display: flex;
     height: 100vh;
+
+    background-color: darkcyan;
 }
 
 .sidebar {
@@ -17,4 +19,9 @@
 .note-editor {
     flex: 1;
     padding: 20px;
+}
+.home-page {
+    min-height: 100vh;
+    padding: 2rem;
+    color: white;
 }

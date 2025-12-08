@@ -13,11 +13,11 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Quiz Backend API")
+                        .title("Notes Handler API")
                         .version("1.0.0")
                         .description("REST API für NotesHandler-Anwendung mit CRUD-Operationen für Notizen und Benutzerverwaltung.")
                         .contact(new Contact()
-                                .name("WISS Quiz Team")
-                                .email("quiz@wiss.ch")));
+                                .name("Notes")
+                                .email("nope@wiss.ch")));
     }
 }

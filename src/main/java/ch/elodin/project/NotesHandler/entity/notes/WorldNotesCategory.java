@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -15,11 +17,11 @@ import java.time.Instant;
 @AllArgsConstructor
 public class WorldNotesCategory extends BaseEntity {
 
-    @Column(nullable = true) // <- nicht null aus DB entfernen
+    @Column(nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
     @Column(nullable = true)
@@ -27,6 +29,11 @@ public class WorldNotesCategory extends BaseEntity {
 
     @Column(nullable = true)
     private Instant updatedAt;
+
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WorldNotesFolder> folders = new ArrayList<>();
+
 
     @PrePersist
     public void prePersist() {

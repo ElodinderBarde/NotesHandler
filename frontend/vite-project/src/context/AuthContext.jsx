@@ -1,34 +1,38 @@
-import { createContext, useContext, useState } from "react";
-import { login as loginService, logout as logoutService } from "../utils/authService";
+import { createContext, useState, useEffect, useContext } from "react";
+import { loginRequest, logoutRequest } from "../utils/authService";
+import axios from "axios";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem("authToken"));
 
-    const login = async (usernameOrEmail, password) => {
-        const data = await loginService(usernameOrEmail, password);
-        setUser({
-            username: data.username,
-            email: data.email,
-            role: data.role,
-        });
-        setToken(data.token);
-        localStorage.setItem("authToken", data.token);
-    };
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            setUser({ token });
+        }
+    }, []);
 
-    const logout = () => {
-        logoutService();
+
+    async function login(username, password) {
+        const data = await loginRequest(username, password);
+        setUser({ username: data.username, token: data.token });
+    }
+
+    function logout() {
+        logoutRequest();
         setUser(null);
-        setToken(null);
-    };
+    }
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+    return useContext(AuthContext);
+}

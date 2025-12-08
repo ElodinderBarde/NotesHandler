@@ -16,18 +16,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class WorldNotesFolderService {
 
     private final WorldNotesFolderRepository folderRepository;
     private final WorldNotesCategoryRepository categoryRepository;
     private final AppUserRepository userRepository;
     private final WorldNotesFolderMapper mapper;
+    private final WorldNotesFolderRootService folderRootService;
 
     // ----------------------------------------------------
     // Helpers
@@ -44,6 +43,7 @@ public class WorldNotesFolderService {
 
     private boolean isAncestorOf(WorldNotesFolder ancestor, WorldNotesFolder node) {
         WorldNotesFolder current = node;
+
         while (current != null) {
             if (current.getId().equals(ancestor.getId())) {
                 return true;
@@ -104,18 +104,17 @@ public class WorldNotesFolderService {
             folder.setCategory(category);
         }
 
-        // Parent ändern (inkl. Zirkularitäts-Check)
+        // Parent ändern
         if (dto.parentId() != null) {
             WorldNotesFolder newParent = folderRepository.findByIdAndUser(dto.parentId(), user)
                     .orElseThrow(() -> new IllegalArgumentException("Parent folder not found"));
 
             if (isAncestorOf(folder, newParent)) {
-                throw new IllegalArgumentException("Cannot assign a child as parent (circular hierarchy).");
+                throw new IllegalArgumentException("Cannot assign child as parent (circular reference).");
             }
 
             folder.setParentFolder(newParent);
-        } else if (dto.parentId() == null) {
-            // explizit zu Root machen
+        } else {
             folder.setParentFolder(null);
         }
 
@@ -132,7 +131,6 @@ public class WorldNotesFolderService {
         WorldNotesFolder root = folderRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new IllegalArgumentException("Folder not found"));
 
-        // Rekursiv alle Kinder löschen, um FK-Fehler zu vermeiden
         deleteRecursively(root);
     }
 
@@ -145,42 +143,51 @@ public class WorldNotesFolderService {
     }
 
     // ----------------------------------------------------
-    // Queries
+    // Folder-Tree
     // ----------------------------------------------------
 
+
+    @Transactional
     public List<FolderReadDTO> getAllFolders() {
         AppUser user = getCurrentUser();
-        List<WorldNotesFolder> folders = folderRepository.findAllByUser(user);
-        return mapper.toReadDTOs(folders);
+        return mapper.toReadDTOs(folderRepository.findAllByUser(user));
     }
 
+
+    @Transactional
     public List<FolderTreeDTO> getFolderTree() {
+
         AppUser user = getCurrentUser();
-        List<WorldNotesFolder> all = folderRepository.findAllByUser(user);
 
-        // Root-Folder bestimmen
-        List<WorldNotesFolder> roots = new ArrayList<>();
-        for (WorldNotesFolder f : all) {
+        folderRootService.ensureRootFolder(user);
+
+        List<WorldNotesFolder> allFolders = folderRepository.findAllByUser(user);
+
+        Map<Long, FolderTreeDTO> dtoMap = new HashMap<>();
+
+        for (WorldNotesFolder f : allFolders) {
+            dtoMap.put(f.getId(), new FolderTreeDTO(
+                    f.getId(),
+                    f.getName(),
+                    new ArrayList<>()
+            ));
+        }
+
+        List<FolderTreeDTO> roots = new ArrayList<>();
+
+        for (WorldNotesFolder f : allFolders) {
+            FolderTreeDTO current = dtoMap.get(f.getId());
+
             if (f.getParentFolder() == null) {
-                roots.add(f);
+                roots.add(current);
+            } else {
+                FolderTreeDTO parent = dtoMap.get(f.getParentFolder().getId());
+                if (parent != null) {
+                    parent.children().add(current);
+                }
             }
         }
 
-        // Baum aufbauen
-        List<FolderTreeDTO> tree = new ArrayList<>();
-        for (WorldNotesFolder root : roots) {
-            tree.add(buildTree(root, all));
-        }
-        return tree;
-    }
-
-    private FolderTreeDTO buildTree(WorldNotesFolder folder, List<WorldNotesFolder> all) {
-        List<FolderTreeDTO> children = new ArrayList<>();
-        for (WorldNotesFolder f : all) {
-            if (folder.equals(f.getParentFolder())) {
-                children.add(buildTree(f, all));
-            }
-        }
-        return new FolderTreeDTO(mapper.toReadDTO(folder), children);
+        return roots;
     }
 }
