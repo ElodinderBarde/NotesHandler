@@ -33,10 +33,13 @@ public interface WorldNotesFolderMapper {
     WorldNotesFolder toEntity(FolderWriteDTO dto);
 
 
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "folderId", source = "note.folder.id")
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "title", source = "title")
+    @Mapping(target = "content", source = "content")
+    @Mapping(target = "folderId", source = "folder.id")
+    @Mapping(target = "updatedAt", source = "updatedAt")
     NoteListDTO toListDTO(WorldNotesNote note);
+
 
 
 }

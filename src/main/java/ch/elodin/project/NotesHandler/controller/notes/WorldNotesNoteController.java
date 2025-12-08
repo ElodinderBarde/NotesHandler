@@ -19,29 +19,29 @@ public class WorldNotesNoteController {
 
     @PostMapping
     public ResponseEntity<NoteReadDTO> create(@RequestBody NoteWriteDTO dto) {
-        return ResponseEntity.ok(noteService.create(dto));  // ✔ richtig
+        return ResponseEntity.ok(noteService.create(dto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<NoteReadDTO> update(
             @PathVariable Long id,
             @RequestBody NoteWriteDTO dto) {
-        return ResponseEntity.ok(noteService.updateNote(id, dto)); // ✔ OK
+        return ResponseEntity.ok(noteService.updateNote(id, dto));
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<NoteListDTO>> getAll() {
-        return ResponseEntity.ok(noteService.getAllNotes());  // ✔ jetzt korrekt
+        return ResponseEntity.ok(noteService.getAllNotes());
     }
 
     @GetMapping("/folder/{folderId}")
     public ResponseEntity<List<NoteListDTO>> getAllInFolder(@PathVariable Long folderId) {
-        return ResponseEntity.ok(noteService.getAllInFolder(folderId)); // ✔ OK
+        return ResponseEntity.ok(noteService.getAllInFolder(folderId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         noteService.delete(id);
-        return ResponseEntity.noContent().build(); // ✔ OK
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,11 +1,10 @@
-import NoteListItem from "../NoteListItem/NoteListItem.jsx";
 import "./NoteList.css";
 
 export default function NoteList({ notes = [], selectedId, onSelect }) {
     return (
         <div className="note-list">
             {notes.length === 0 && (
-                <div className="empty">No notes found</div>
+                <div className="empty">No note found</div>
             )}
 
             {notes.map(note => (

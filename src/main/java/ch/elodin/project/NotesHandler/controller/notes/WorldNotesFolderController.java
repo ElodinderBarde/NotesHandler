@@ -45,4 +45,7 @@ public class WorldNotesFolderController {
         service.deleteFolder(id);
         return ResponseEntity.noContent().build();
     }
+
+
+
 }

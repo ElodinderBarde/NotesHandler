@@ -7,7 +7,6 @@ export default function Sidebar({ onFolderSelect }) {
         <div className="sidebar">
 
             <div className="sidebar-header">
-                <h3>Folders</h3>
             </div>
 
             <div className="folder-list">
