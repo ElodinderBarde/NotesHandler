@@ -2,7 +2,9 @@ package ch.elodin.project.NotesHandler.mapper.notes;
 
 import ch.elodin.project.NotesHandler.dto.notes.FolderReadDTO;
 import ch.elodin.project.NotesHandler.dto.notes.FolderWriteDTO;
+import ch.elodin.project.NotesHandler.dto.notes.NoteListDTO;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
+import ch.elodin.project.NotesHandler.entity.notes.WorldNotesNote;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -29,4 +31,12 @@ public interface WorldNotesFolderMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "notes", ignore = true)
     WorldNotesFolder toEntity(FolderWriteDTO dto);
+
+
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "folderId", source = "note.folder.id")
+    NoteListDTO toListDTO(WorldNotesNote note);
+
+
 }

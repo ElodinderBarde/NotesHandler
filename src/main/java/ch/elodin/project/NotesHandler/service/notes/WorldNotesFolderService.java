@@ -3,12 +3,12 @@ package ch.elodin.project.NotesHandler.service.notes;
 import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesCategoryRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesFolderRepository;
-import ch.elodin.project.NotesHandler.dto.notes.FolderReadDTO;
-import ch.elodin.project.NotesHandler.dto.notes.FolderTreeDTO;
-import ch.elodin.project.NotesHandler.dto.notes.FolderWriteDTO;
+import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesNoteRepository;
+import ch.elodin.project.NotesHandler.dto.notes.*;
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesCategory;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
+import ch.elodin.project.NotesHandler.entity.notes.WorldNotesNote;
 import ch.elodin.project.NotesHandler.mapper.notes.WorldNotesFolderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +25,7 @@ public class WorldNotesFolderService {
     private final WorldNotesFolderRepository folderRepository;
     private final WorldNotesCategoryRepository categoryRepository;
     private final AppUserRepository userRepository;
+    private final WorldNotesNoteRepository noteRepository;
     private final WorldNotesFolderMapper mapper;
     private final WorldNotesFolderRootService folderRootService;
 
@@ -162,32 +163,47 @@ public class WorldNotesFolderService {
         folderRootService.ensureRootFolder(user);
 
         List<WorldNotesFolder> allFolders = folderRepository.findAllByUser(user);
+        List<WorldNotesNote> allNotes = noteRepository.findByUserId(user.getId());
 
         Map<Long, FolderTreeDTO> dtoMap = new HashMap<>();
 
         for (WorldNotesFolder f : allFolders) {
-            dtoMap.put(f.getId(), new FolderTreeDTO(
+            dtoMap.put(
                     f.getId(),
-                    f.getName(),
-                    new ArrayList<>()
-            ));
+                    new FolderTreeDTO(f.getId(), f.getName())
+            );
+        }
+
+        for (WorldNotesNote note : allNotes) {
+
+            if (note.getFolder() == null) continue;
+
+            FolderTreeDTO folderDTO = dtoMap.get(note.getFolder().getId());
+
+            if (folderDTO != null) {
+                folderDTO.notes().add(
+                        mapper.toListDTO(note)
+                );
+            }
         }
 
         List<FolderTreeDTO> roots = new ArrayList<>();
 
         for (WorldNotesFolder f : allFolders) {
-            FolderTreeDTO current = dtoMap.get(f.getId());
+
+            FolderTreeDTO currentDto = dtoMap.get(f.getId());
 
             if (f.getParentFolder() == null) {
-                roots.add(current);
+                roots.add(currentDto);
             } else {
-                FolderTreeDTO parent = dtoMap.get(f.getParentFolder().getId());
-                if (parent != null) {
-                    parent.children().add(current);
+                FolderTreeDTO parentDto = dtoMap.get(f.getParentFolder().getId());
+                if (parentDto != null) {
+                    parentDto.children().add(currentDto);
                 }
             }
         }
 
         return roots;
     }
+
 }

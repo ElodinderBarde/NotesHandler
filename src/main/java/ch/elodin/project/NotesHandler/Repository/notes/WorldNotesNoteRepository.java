@@ -14,17 +14,15 @@ public interface WorldNotesNoteRepository extends JpaRepository<WorldNotesNote, 
 
 
 
-        // alle Notes eines Users
         List<WorldNotesNote> findByUserId(Long userId);
-        // Wird vom LinkService und NoteService benötigt
         Optional<WorldNotesNote> findByIdAndUser(Long id, AppUser user);
 
-        // Wird vom NoteService benötigt
         Optional<WorldNotesNote> findByIdAndUserId(Long id, Long userId);
 
-        // Wird für Notes im Folder benötigt
         List<WorldNotesNote> findByFolderAndUserId(WorldNotesFolder folder, Long userId);
 
-        // Wird für "getAll notes" benötigt
         List<WorldNotesNote> findAllByUser(AppUser user);
-    }
+
+        List<WorldNotesNote> findByFolderIdAndUserId(Long folderId, Long userId);
+
+}
