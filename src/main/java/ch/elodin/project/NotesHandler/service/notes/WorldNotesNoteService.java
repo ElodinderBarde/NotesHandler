@@ -64,6 +64,9 @@ public class WorldNotesNoteService {
             WorldNotesCategory category = categoryRepository.findById(dto.categoryId())
                     .orElseThrow(() -> new RuntimeException("Category not found"));
             note.setCategory(category);
+        }else{
+        note.setCategory(categoryRepository.findById(1L).orElse(null));
+
         }
 
         noteRepository.save(note);

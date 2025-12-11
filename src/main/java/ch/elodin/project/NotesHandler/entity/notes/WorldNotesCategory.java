@@ -40,6 +40,7 @@ public class WorldNotesCategory extends BaseEntity {
         Instant now = Instant.now();
         if (createdAt == null) createdAt = now;
         if (updatedAt == null) updatedAt = now;
+        if(this.name == null) name = "Allgemein";
     }
 
     public void preUpdate() {
