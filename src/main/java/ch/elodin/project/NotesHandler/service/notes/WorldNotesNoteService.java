@@ -4,9 +4,7 @@ import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesCategoryRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesFolderRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesNoteRepository;
-import ch.elodin.project.NotesHandler.dto.notes.NoteListDTO;
-import ch.elodin.project.NotesHandler.dto.notes.NoteReadDTO;
-import ch.elodin.project.NotesHandler.dto.notes.NoteWriteDTO;
+import ch.elodin.project.NotesHandler.dto.notes.*;
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesCategory;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
@@ -16,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +31,14 @@ public class WorldNotesNoteService {
     private final WorldNotesNoteMapper mapper;
 
     private AppUser getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getName();
+
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new IllegalStateException("User not found: " + username));
     }
+
 
     // ----------------------------------------------------------------------
     // CREATE
@@ -130,7 +134,49 @@ public class WorldNotesNoteService {
         return mapper.toListDTOs(
                 noteRepository.findByUserId(user.getId())
         );
-                }
     }
 
 
+    @Transactional
+    public @Nullable NoteMoveDTO moveNote(Long noteId, NoteMoveDTO dto) {
+        AppUser user = getCurrentUser();
+
+        WorldNotesNote note = noteRepository.findByIdAndUserId(noteId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Note not found"));
+
+        if (dto.folderId() != null) {
+            WorldNotesFolder newFolder = folderRepository.findById(dto.folderId())
+                    .orElseThrow(() -> new RuntimeException("Folder not found"));
+            note.setFolder(newFolder);
+        } else {
+            note.setFolder(null);
+        }
+
+        note.setUpdatedAt(Instant.now());
+        WorldNotesNote savedNote = noteRepository.save(note);
+
+    return mapper.toNoteMoveDTO(savedNote.getFolder());
+    }
+
+
+    @Transactional
+    public @Nullable NoteRenameDTO renameNote(Long noteId, NoteRenameDTO dto) {
+        AppUser user = getCurrentUser();
+
+        WorldNotesNote note = noteRepository.findByIdAndUserId(noteId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Note not found"));
+
+        if (dto.title() != null && !dto.title().isBlank()) {
+            note.setTitle(dto.title());
+
+
+            note.setUpdatedAt(Instant.now());
+            WorldNotesNote savedNote = noteRepository.save(note);
+
+
+            return mapper.toNoteRenameDTO(savedNote);
+        }
+        throw new RuntimeException("Title cannot be null or blank");
+
+    }
+}

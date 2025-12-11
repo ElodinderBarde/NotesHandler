@@ -1,8 +1,6 @@
 package ch.elodin.project.NotesHandler.mapper.notes;
 
-import ch.elodin.project.NotesHandler.dto.notes.NoteListDTO;
-import ch.elodin.project.NotesHandler.dto.notes.NoteReadDTO;
-import ch.elodin.project.NotesHandler.dto.notes.NoteWriteDTO;
+import ch.elodin.project.NotesHandler.dto.notes.*;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesNote;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesLink;
@@ -52,6 +50,15 @@ public interface WorldNotesNoteMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     void updateEntityFromDTO(NoteWriteDTO dto, @MappingTarget WorldNotesNote entity);
+
+
+    @Mapping(target = "id", source = "folder.id")
+    @Mapping(target = "folderId", source = "folder.id")
+    NoteMoveDTO toNoteMoveDTO(WorldNotesFolder folder);
+
+
+    @Mapping(target = "title", source = "title")
+    NoteRenameDTO toNoteRenameDTO(WorldNotesNote folder);
 
     // Helper
     default List<Long> mapLinks(List<WorldNotesLink> links) {

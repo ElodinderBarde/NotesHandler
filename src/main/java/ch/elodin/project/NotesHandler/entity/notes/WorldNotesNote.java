@@ -15,7 +15,6 @@ import java.util.List;
 public class WorldNotesNote extends BaseEntity {
 
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)

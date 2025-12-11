@@ -9,10 +9,12 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const token = localStorage.getItem("authToken");
+
         if (token) {
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
             setUser({ token });
         }
+
     }, []);
 
 

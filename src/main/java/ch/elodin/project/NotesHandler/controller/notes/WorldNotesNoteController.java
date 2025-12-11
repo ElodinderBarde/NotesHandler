@@ -1,11 +1,10 @@
 package ch.elodin.project.NotesHandler.controller.notes;
 
-import ch.elodin.project.NotesHandler.dto.notes.NoteListDTO;
-import ch.elodin.project.NotesHandler.dto.notes.NoteReadDTO;
-import ch.elodin.project.NotesHandler.dto.notes.NoteWriteDTO;
+import ch.elodin.project.NotesHandler.dto.notes.*;
 import ch.elodin.project.NotesHandler.service.notes.WorldNotesNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,4 +43,25 @@ public class WorldNotesNoteController {
         noteService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<NoteRenameDTO> rename(
+            @PathVariable Long id,
+            @RequestBody NoteRenameDTO dto
+    ) {
+        return ResponseEntity.ok(noteService.renameNote(id, dto));
+
+        }
+
+
+        @PatchMapping("/{id}/move")
+    public ResponseEntity<NoteMoveDTO> move(
+            @PathVariable Long id,
+            @RequestBody NoteMoveDTO dto
+    ) {
+            return ResponseEntity.ok(noteService.moveNote(id, dto));
+        }
+
+
+
 }

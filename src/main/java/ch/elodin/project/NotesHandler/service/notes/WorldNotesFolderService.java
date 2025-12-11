@@ -54,6 +54,13 @@ public class WorldNotesFolderService {
         return false;
     }
 
+    private WorldNotesFolder findUserFolder(Long id) {
+        AppUser user = getCurrentUser();
+
+        return folderRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new IllegalArgumentException("Folder not found: " + id));
+    }
+
     // ----------------------------------------------------
     // CRUD
     // ----------------------------------------------------
@@ -142,7 +149,35 @@ public class WorldNotesFolderService {
         }
         folderRepository.delete(folder);
     }
+    @Transactional
+    public FolderReadDTO moveFolder(Long id, FolderMoveDTO dto) {
 
+        WorldNotesFolder folder = findUserFolder(id);
+        WorldNotesFolder newParent = findUserFolder(dto.parentId());
+
+        if (isAncestorOf(folder, newParent)) {
+            throw new IllegalArgumentException("Cannot move folder inside itself.");
+        }
+
+        folder.setParentFolder(newParent);
+        folder.setUpdatedAt(Instant.now());
+
+        return mapper.toReadDTO(folderRepository.save(folder));
+    }
+
+
+    @Transactional
+    public FolderReadDTO renameFolder(Long id, FolderRenameDTO dto) {
+
+        WorldNotesFolder folder = findUserFolder(id);
+
+        if (dto.name() != null && !dto.name().isBlank()) {
+            folder.setName(dto.name());
+        }
+
+        folder.setUpdatedAt(Instant.now());
+        return mapper.toReadDTO(folderRepository.save(folder));
+    }
     // ----------------------------------------------------
     // Folder-Tree
     // ----------------------------------------------------

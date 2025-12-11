@@ -15,10 +15,12 @@ api.interceptors.request.use(
         const token = localStorage.getItem("authToken");
         console.log("Request sent", config.url);
 
-        if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-            console.log("Token found and set in header");
-        } else {
+        if (!config.url.includes("/auth")) {
+          if (token) {
+                config.headers["Authorization"] = `Bearer ${token}`;
+                console.log("Token found and set in header");
+            }
+        }else {
             console.log("No token found");
         }
         return config;

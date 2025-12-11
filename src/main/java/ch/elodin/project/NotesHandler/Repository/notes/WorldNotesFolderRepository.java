@@ -26,4 +26,6 @@ public interface WorldNotesFolderRepository extends JpaRepository<WorldNotesFold
     // Optional: Name-Suche pro User
     Optional<WorldNotesFolder> findByNameAndUser(String name, AppUser user);
 
+
+
 }

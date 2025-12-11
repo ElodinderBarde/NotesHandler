@@ -1,8 +1,6 @@
 package ch.elodin.project.NotesHandler.controller.notes;
 
-import ch.elodin.project.NotesHandler.dto.notes.FolderReadDTO;
-import ch.elodin.project.NotesHandler.dto.notes.FolderTreeDTO;
-import ch.elodin.project.NotesHandler.dto.notes.FolderWriteDTO;
+import ch.elodin.project.NotesHandler.dto.notes.*;
 import ch.elodin.project.NotesHandler.service.notes.WorldNotesFolderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,5 +45,19 @@ public class WorldNotesFolderController {
     }
 
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<FolderReadDTO> rename(
+            @PathVariable Long id,
+            @RequestBody FolderRenameDTO dto
+    ) {
+        return ResponseEntity.ok(service.renameFolder(id, dto));
+    }
+    @PatchMapping("/{id}/move")
+    public ResponseEntity<FolderReadDTO> move(
+            @PathVariable Long id,
+            @RequestBody FolderMoveDTO dto
+    ) {
+        return ResponseEntity.ok(service.moveFolder(id, dto));
+    }
 
 }

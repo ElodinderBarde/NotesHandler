@@ -18,7 +18,6 @@ import FolderNode from "./FolderNode.jsx";
         return res.data;
     }
 
-
         useEffect(() => {
             if (!isAuthenticated()) return;
 
@@ -55,24 +54,21 @@ import FolderNode from "./FolderNode.jsx";
         async function handleMoveFolder(folderId, targetFolderId) {
             if (folderId === targetFolderId) return;
 
-            await fetch(`/api/folders/${folderId}/move`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ targetParentId: targetFolderId })
+            await api.patch(`/folders/${folderId}/move`, {
+                parentId: targetFolderId
             });
 
             await loadTree();
         }
 
         async function handleMoveNote(noteId, targetFolderId) {
-            await fetch(`/api/notes/${noteId}/move`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ targetFolderId })
+            await api.patch(`/notes/${noteId}/move`, {
+                folderId: targetFolderId
             });
 
             await loadTree();
         }
+
 
         // -------------------------------------------------
         // CONTEXT MENU
@@ -98,58 +94,52 @@ import FolderNode from "./FolderNode.jsx";
             if (action === "new-folder") {
                 const name = prompt("Folder name:");
                 if (!name) return;
-                await fetch("/api/folders", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        name,
-                        parentFolderId: type === "folder" ? id : null // bei Note: oberster Root?
-                    })
+
+                await api.post("/folders", {
+                    name,
+                    parentId: type === "folder" ? id : null
                 });
             }
 
-            if (action === "new-note" && type === "folder") {
+
+            if (action === "new-note") {
                 const title = prompt("Note title:");
                 if (!title) return;
-                await fetch("/api/notes", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        title,
-                        content: "",
-                        folderId: id
-                    })
+
+                await api.post("/notes", {
+                    title,
+                    content: "",
+                    folderId: id
                 });
             }
+
 
             if (action === "rename") {
                 const newName = prompt("New name:");
                 if (!newName) return;
 
                 if (type === "folder") {
-                    await fetch(`/api/folders/${id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name: newName })
+                    await api.patch(`/folders/${id}`, {
+                        name: newName
                     });
                 } else {
-                    await fetch(`/api/notes/${id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ title: newName })
+                    await api.patch(`/notes/${id}`, {
+                        title: newName
                     });
                 }
             }
+
 
             if (action === "delete") {
                 if (!window.confirm("Delete?")) return;
 
                 if (type === "folder") {
-                    await fetch(`/api/folders/${id}`, { method: "DELETE" });
+                    await api.delete(`/folders/${id}`);
                 } else {
-                    await fetch(`/api/notes/${id}`, { method: "DELETE" });
+                    await api.delete(`/notes/${id}`);
                 }
             }
+
 
             closeContextMenu();
             await loadTree();
