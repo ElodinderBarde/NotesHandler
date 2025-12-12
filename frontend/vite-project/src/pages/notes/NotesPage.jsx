@@ -47,11 +47,18 @@ export default function NotesPage() {
                 onSelectFolder={setSelectedFolder}
                 onSelectNote={loadNotes}
             />
+
+
+            {/* Aus Zeitgründen auskommentiert, diese Komponente sollte die verlinkten files zeigen */}
+
+            {/* dfgsdfg
             <NoteList
                 notes={notes}
                 selectedId={selectedNote}
                 onSelect={setSelectedNote}
             />
+
+            */}
 
 
             <NoteEditor

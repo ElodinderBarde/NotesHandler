@@ -193,7 +193,7 @@ public class WorldNotesNoteService {
         return mapper.toReadDTO(note);
     }
 
-    public Optional<NoteReadDTO> findByTitleAndUser(String title) {
+    public  Optional<NoteReadDTO> findByTitleAndUser(String title) {
         AppUser user = getCurrentUser();
 
         return noteRepository

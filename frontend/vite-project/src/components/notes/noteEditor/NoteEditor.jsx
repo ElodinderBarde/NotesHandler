@@ -41,16 +41,14 @@ export default function NoteEditor({ note, refreshNotes, openWikiLink }) {
 
             <div className="toolbar">
                 <button onClick={() => setIsEditMode((v) => !v)}>
-                    {isEditMode ? "Read" : "Edit"}
+                    {isEditMode ? "Read-Mode" : "Edit-Mode"}
                 </button>
 
                 <button className="btn-save" onClick={handleSave} disabled={!isEditMode}>
                     Save
                 </button>
 
-                <button className="btn-delete" onClick={handleDelete}>
-                    Delete
-                </button>
+
             </div>
 
             <MarkdownEditor

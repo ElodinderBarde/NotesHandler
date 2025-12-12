@@ -20,6 +20,7 @@ public interface WorldNotesCategoryMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "folders", ignore = true)
     WorldNotesCategory toEntity(CategoryWriteDTO dto);
 
     // UPDATE
@@ -29,5 +30,6 @@ public interface WorldNotesCategoryMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "folders", ignore = true)
     void updateFromDTO(CategoryWriteDTO dto, @MappingTarget WorldNotesCategory entity);
 }

@@ -46,7 +46,7 @@ public class DataInitializer implements CommandLineRunner {
             category.setName("Allgemein");
             category.setUser(user);
             categoryRepo.save(category);
-            System.out.println("✔ Kategorie 'Allgemein' erstellt");
+            System.out.println(" Kategorie 'Allgemein' erstellt");
         }
 
         // DEFAULT ROOT FOLDER --------------------------------------------------
@@ -55,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
 
         if (root == null) {
             root = new WorldNotesFolder();
-            root.setName("Root");
+            root.setName("Dein Hauptordner");
             root.setUser(user);
             root.setCategory(category);
             folderRepo.save(root);
@@ -72,7 +72,45 @@ public class DataInitializer implements CommandLineRunner {
                 Die Plattform unterstützt **Markdown**.
                 Viel Spaß beim Schreiben!
 
-                Syntaxhilfe → www.markdown.de
+
+                    # Hello There
+                    
+                    ## Das ist eine Überschrift
+                    
+                    Verwalte deine Notizen einfach mit Drag and Drop, sowie dem Kontextmenü bei Rechtsklick auf einen Ordner oder Notiz.\s
+                    
+                    ---
+                    
+                    Markdown unterstützt einige verschiede Funktionen
+                    
+                    ### Codeblöcke
+                    
+                    ```cpp
+                    
+                    std::cout << "Ich kann hier auch Codeblöcke verwenden";\s
+                    std::endl;\s
+                    
+                    // ich lasse diesen Code nach 10 zählen
+                    
+                    for(int i = 0; i<10; ++i){
+                    
+                        std::cout << "\\nIch kann auf " << i << " zählen!";\s
+                    }
+                    
+                    ```
+                    
+                    ---
+                    
+                    
+                    ### Optische bearbeitung
+                    
+                    Einen Codeblock hier zu erkennen ist jedoch nicht ganz einfach
+                    
+                    aber ich kann auch **Fett** aber auch *kursiv*.\s
+                    ---
+                    
+
+              weitere  Syntaxhilfe → www.markdown.de
             """);
             note.setFolder(root);
             note.setUser(user);
