@@ -2,7 +2,7 @@ package ch.elodin.project.NotesHandler.service;
 
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesCategoryRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesFolderRepository;
-import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesNoteRepository;
+import ch.elodin.project.NotesHandler.repository.notes.WorldNotesNoteRepository;
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesCategory;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;

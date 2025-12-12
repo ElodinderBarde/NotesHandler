@@ -4,7 +4,6 @@ import ch.elodin.project.NotesHandler.dto.notes.*;
 import ch.elodin.project.NotesHandler.service.notes.WorldNotesNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +31,13 @@ public class WorldNotesNoteController {
     public ResponseEntity<List<NoteListDTO>> getAll() {
         return ResponseEntity.ok(noteService.getAllNotes());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<NoteReadDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(noteService.getById(id));
+    }
+
+
 
     @GetMapping("/folder/{folderId}")
     public ResponseEntity<List<NoteListDTO>> getAllInFolder(@PathVariable Long folderId) {
@@ -61,6 +67,20 @@ public class WorldNotesNoteController {
     ) {
             return ResponseEntity.ok(noteService.moveNote(id, dto));
         }
+
+
+
+
+    @GetMapping("/by-title/{title}")
+    public ResponseEntity<NoteReadDTO> getByTitle(
+            @PathVariable String title
+    ) {
+        return noteService
+                .findByTitleAndUser(title)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 
 
 

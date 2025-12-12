@@ -3,7 +3,7 @@ package ch.elodin.project.NotesHandler.service.notes;
 import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesCategoryRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesFolderRepository;
-import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesNoteRepository;
+import ch.elodin.project.NotesHandler.repository.notes.WorldNotesNoteRepository;
 import ch.elodin.project.NotesHandler.dto.notes.*;
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesCategory;
@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -182,4 +183,29 @@ public class WorldNotesNoteService {
         throw new RuntimeException("Title cannot be null or blank");
 
     }
+
+    public @Nullable NoteReadDTO getById(Long id){
+        AppUser user = getCurrentUser();
+
+        WorldNotesNote note = noteRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new RuntimeException("Note not found"));
+
+        return mapper.toReadDTO(note);
+    }
+
+    public Optional<NoteReadDTO> findByTitleAndUser(String title) {
+        AppUser user = getCurrentUser();
+
+        return noteRepository
+                .findByTitleAndUser(title, user)
+                .map(mapper::toReadDto);
+    }
+
+
+
+
+
+
+
+
 }

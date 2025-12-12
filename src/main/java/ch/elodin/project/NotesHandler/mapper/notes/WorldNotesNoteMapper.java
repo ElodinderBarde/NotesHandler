@@ -17,7 +17,6 @@ public interface WorldNotesNoteMapper {
     @Mapping(target = "linkIds", expression = "java(mapLinks(entity.getLinks()))")
     NoteReadDTO toReadDTO(WorldNotesNote entity);
 
-    List<NoteReadDTO> toReadDTOs(List<WorldNotesNote> entities);
 
     @Mapping(target = "folderId", source = "folder.id")
     NoteListDTO toListDTO(WorldNotesNote entity);
@@ -65,4 +64,12 @@ public interface WorldNotesNoteMapper {
         return links == null ? List.of() :
                 links.stream().map(WorldNotesLink::getId).toList();
     }
+
+
+
+    @Mapping(target = "title", source = "title")
+    @Mapping(target ="folderId", ignore = true)
+    @Mapping(target = "categoryId", ignore = true)
+    @Mapping(target = "linkIds", ignore = true)
+    NoteReadDTO toReadDto(WorldNotesNote note);
 }

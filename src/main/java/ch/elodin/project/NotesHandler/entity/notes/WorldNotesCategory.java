@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Entity
 @Table(name = "worldnotes_category")
 @Getter
@@ -24,27 +23,14 @@ public class WorldNotesCategory extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    @Column(nullable = true)
-    private Instant createdAt;
-
-    @Column(nullable = true)
-    private Instant updatedAt;
-
-
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorldNotesFolder> folders = new ArrayList<>();
 
-
     @PrePersist
-    public void prePersist() {
-        Instant now = Instant.now();
-        if (createdAt == null) createdAt = now;
-        if (updatedAt == null) updatedAt = now;
-        if(this.name == null) name = "Allgemein";
-    }
-
-    public void preUpdate() {
-        updatedAt = Instant.now();
+    protected void onCreate() {
+        if (name == null || name.isBlank()) {
+            name = "Allgemein";
+        }
     }
 }
 

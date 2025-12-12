@@ -2,7 +2,7 @@ package ch.elodin.project.NotesHandler.service.notes;
 
 import ch.elodin.project.NotesHandler.Repository.AppUserRepository;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesLinkRepository;
-import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesNoteRepository;
+import ch.elodin.project.NotesHandler.repository.notes.WorldNotesNoteRepository;
 import ch.elodin.project.NotesHandler.dto.notes.LinkReadDTO;
 import ch.elodin.project.NotesHandler.dto.notes.LinkWriteDTO;
 import ch.elodin.project.NotesHandler.entity.AppUser;

@@ -1,4 +1,4 @@
-package ch.elodin.project.NotesHandler.Repository.notes;
+package ch.elodin.project.NotesHandler.repository.notes;
 
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
@@ -22,6 +22,8 @@ public interface WorldNotesNoteRepository extends JpaRepository<WorldNotesNote, 
         List<WorldNotesNote> findByFolderAndUserId(WorldNotesFolder folder, Long userId);
 
         List<WorldNotesNote> findAllByUser(AppUser user);
+
+        Optional<WorldNotesNote> findByTitleAndUser(String title, AppUser user);
 
         List<WorldNotesNote> findByFolderIdAndUserId(Long folderId, Long userId);
 

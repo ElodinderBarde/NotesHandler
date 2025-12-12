@@ -4,10 +4,13 @@ import { isAuthenticated } from "../../../../utils/authService.js";
 import FolderNode from "./FolderNode.jsx";
 
 
-    export default function FolderTree({ onSelect ,onSelectFolder, onSelectNote , treeData = []}) {
+export default function FolderTree({
+                                       onSelectFolder,
+                                       onSelectNote,
+                                       selectedNoteId
+                                   }) {
 
         const [tree, setTree] = useState([]);
-        const [selectedNoteId, setSelectedNoteId] = useState(null);
         const [selectedFolderId, setSelectedFolderId] = useState(null);
 
         const [contextMenu, setContextMenu] = useState(null);
@@ -41,12 +44,13 @@ import FolderNode from "./FolderNode.jsx";
         // -------------------------------------------------
         function handleFolderSelect(id) {
             setSelectedFolderId(id);
-            setSelectedNoteId(null);
         }
 
-        function handleNoteSelect(id) {
-            setSelectedNoteId(id);
-        }
+    function handleNoteSelect(id) {
+        onSelectNote?.(id);
+        console.log("Selected note ID:", id);
+    }
+
 
         // -------------------------------------------------
         // DRAG & DROP (MOVE)

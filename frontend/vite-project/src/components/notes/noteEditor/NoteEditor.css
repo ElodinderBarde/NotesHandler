@@ -11,6 +11,15 @@
     padding: 10px;
     margin-bottom: 15px;
 }
+.wiki-link {
+    color: #4fc3f7;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.wiki-link:hover {
+    text-decoration: underline;
+}
 
 .note-content-input {
     flex: 1;
