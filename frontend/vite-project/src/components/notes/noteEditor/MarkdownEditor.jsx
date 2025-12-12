@@ -1,10 +1,10 @@
-// src/components/notes/noteEditor/MarkdownEditor.jsx
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 
-export default function MarkdownEditor({ value, onChange, onWikiLink }) {
-    function renderText({ children }) {
+export default function MarkdownEditor({ value, onChange, onWikiLink, readOnly }) {
+
+    function WikiText({ children }) {
         const text = children[0];
         if (typeof text !== "string") return text;
 
@@ -20,7 +20,12 @@ export default function MarkdownEditor({ value, onChange, onWikiLink }) {
                     <span
                         key={i}
                         className="wiki-link"
-                        onClick={() => onWikiLink(title)}
+                        onClick={() => onWikiLink?.(title)}
+                        style={{
+                            color: "#4da6ff",
+                            cursor: "pointer",
+                            textDecoration: "underline"
+                        }}
                     >
                         {title}
                     </span>
@@ -31,18 +36,14 @@ export default function MarkdownEditor({ value, onChange, onWikiLink }) {
         });
     }
 
-
-
-
-
     return (
-
-        <div className="markdown-editor" style={{ display: "flex", gap: "1rem", height: "100%" }}>
+        <div
+            className="markdown-editor"
+            style={{ display: "flex", gap: "1rem", height: "100%" }}
+        >
             {/* Eingabe */}
 
-
-
-
+            {!readOnly &&(
             <textarea
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -54,8 +55,7 @@ export default function MarkdownEditor({ value, onChange, onWikiLink }) {
                     fontFamily: "monospace"
                 }}
             />
-
-
+            )}
             {/* Vorschau */}
             <div
                 style={{
@@ -66,11 +66,12 @@ export default function MarkdownEditor({ value, onChange, onWikiLink }) {
                 }}
             >
                 <ReactMarkdown
-
-                remarkPlugins={[remarkGfm]}
+                    remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeHighlight]}
+                    components={{
+                        text: WikiText
+                    }}
                 >
-
                     {value}
                 </ReactMarkdown>
             </div>
