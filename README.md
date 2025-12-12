@@ -80,7 +80,6 @@ Das Backend folgt einer klassischen **Layered Architecture**, um Verantwortlichk
 
 Das React-Frontend kommuniziert ausschliesslich über die REST-API mit dem Backend.
 
-*(Diagramm kann extern verlinkt werden)*
 
 ---
 
@@ -100,7 +99,6 @@ Jede Notiz gehört genau einem Benutzer.
 Ordner können hierarchisch aufgebaut sein.
 Fremdschlüssel stellen die referenzielle Integrität sicher.
 
-*(ER-Diagramm extern einbinden empfohlen)*
 
 ---
 
