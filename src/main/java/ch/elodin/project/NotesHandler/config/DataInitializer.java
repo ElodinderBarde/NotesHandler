@@ -71,11 +71,9 @@ public class DataInitializer implements CommandLineRunner {
 
                 Die Plattform unterstützt **Markdown**.
                 Viel Spaß beim Schreiben!
-
-
-                    # Hello There
+# Hello There
                     
-                    ## Das ist eine Überschrift
+## Das ist eine Überschrift
                     
                     Verwalte deine Notizen einfach mit Drag and Drop, sowie dem Kontextmenü bei Rechtsklick auf einen Ordner oder Notiz.\s
                     

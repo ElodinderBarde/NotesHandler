@@ -4,6 +4,7 @@ package ch.elodin.project.NotesHandler.service.notes;
 import ch.elodin.project.NotesHandler.Repository.notes.WorldNotesFolderRepository;
 import ch.elodin.project.NotesHandler.entity.AppUser;
 import ch.elodin.project.NotesHandler.entity.notes.WorldNotesFolder;
+import ch.elodin.project.NotesHandler.service.UserBootstrapService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 public class WorldNotesFolderRootService {
 
     private final WorldNotesFolderRepository folderRepository;
+    private final UserBootstrapService userBootstrapService;
 
     @Transactional
     public WorldNotesFolder ensureRootFolder(AppUser user) {
@@ -25,9 +27,8 @@ public class WorldNotesFolderRootService {
         if (!roots.isEmpty()) {
             return roots.get(0);
         }
-
+    userBootstrapService.initializeDefaultData(user);
         WorldNotesFolder root = new WorldNotesFolder();
-        root.setName("Root");
         root.setUser(user);
         root.setCreatedAt(Instant.now());
         root.setUpdatedAt(Instant.now());
