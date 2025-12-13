@@ -2,14 +2,18 @@ import "./Navbar.css";
 import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
 import { Loginbox } from "../loginbox/Loginbox";
+import { useNavigate} from "react-router-dom";
 
 export default function Navbar() {
     const { user, logout } = useAuth();
     const [showLogin, setShowLogin] = useState(false);
-
+const navigate = useNavigate();
     return (
         <nav className="navbar">
-            <h1>NotesHandler</h1>
+
+            <h1 onClick={() => navigate(user ? "/notes" : "/")}>
+                NotesHandler
+            </h1>
 
             <div>
                 {user ? (
@@ -18,7 +22,7 @@ export default function Navbar() {
                         <button onClick={logout}>Logout</button>
                     </>
                 ) : (
-                    <button onClick={() => setShowLogin(true)}>Login</button>
+                    <button onClick={(navi) => setShowLogin(true)}>Login</button>
                 )}
             </div>
 

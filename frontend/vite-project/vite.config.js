@@ -9,5 +9,10 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler']],
       },
     }),
-  ],
+
+  ],test:
+{
+  environment: "jsdom",
+  setupFiles: "./src/setupTests.js"
+}
 })

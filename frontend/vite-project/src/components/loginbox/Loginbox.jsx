@@ -2,12 +2,14 @@ import "./Modal.css";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
+import { useNavigate } from "react-router-dom";
 export function Loginbox({ onClose }) {
     const { login } = useAuth();
     const [usernameOrEmail, setUsernameOrEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,6 +19,7 @@ export function Loginbox({ onClose }) {
         try {
             await login(usernameOrEmail, password);
             onClose();
+            navigate("/notes");
         } catch (err) {
             setError("Login fehlgeschlagen! Bitte überprüfe deine Eingaben.");
         }
@@ -56,6 +59,7 @@ export function Loginbox({ onClose }) {
 
                     <button type="submit" disabled={loading}>
                         {loading ? "Logging in..." : "Login"}
+
                     </button>
                 </form>
 
