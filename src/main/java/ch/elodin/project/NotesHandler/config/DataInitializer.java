@@ -64,57 +64,48 @@ public class DataInitializer implements CommandLineRunner {
 
         // DEFAULT WELCOME NOTE -------------------------------------------------
         if (noteRepo.count() == 0) {
-            WorldNotesNote note = new WorldNotesNote();
-            note.setTitle("Willkommen in NotesHandler");
-            note.setContent("""
-                Dies ist deine erste Notiz.
-
-                Die Plattform unterstützt **Markdown**.
-                Viel Spaß beim Schreiben!
-# Hello There
-                    
-## Das ist eine Überschrift
-                    
-                    Verwalte deine Notizen einfach mit Drag and Drop, sowie dem Kontextmenü bei Rechtsklick auf einen Ordner oder Notiz.\s
-                    
-                    ---
-                    
-                    Markdown unterstützt einige verschiede Funktionen
-                    
-                    ### Codeblöcke
-                    
-                    ```cpp
-                    
-                    std::cout << "Ich kann hier auch Codeblöcke verwenden";\s
-                    std::endl;\s
-                    
-                    // ich lasse diesen Code nach 10 zählen
-                    
-                    for(int i = 0; i<10; ++i){
-                    
-                        std::cout << "\\nIch kann auf " << i << " zählen!";\s
-                    }
-                    
-                    ```
-                    
-                    ---
-                    
-                    
-                    ### Optische bearbeitung
-                    
-                    Einen Codeblock hier zu erkennen ist jedoch nicht ganz einfach
-                    
-                    aber ich kann auch **Fett** aber auch *kursiv*.\s
-                    ---
-                    
-
-              weitere  Syntaxhilfe → www.markdown.de
-            """);
-            note.setFolder(root);
-            note.setUser(user);
+            WorldNotesNote note = getWorldNotesNote(root, user);
             noteRepo.save(note);
 
             System.out.println("✔ Begrüßungsnotiz erstellt");
         }
+    }
+
+    private static WorldNotesNote getWorldNotesNote(WorldNotesFolder root, AppUser user) {
+        WorldNotesNote note = new WorldNotesNote();
+        note.setTitle("Willkommen in NotesHandler");
+        note.setContent("""
+Dies ist deine erste Notiz.
+
+Die Plattform unterstützt **Markdown**.
+Viel Spaß beim Schreiben!
+
+# Hello There
+## Das ist eine Überschrift
+Verwalte deine Notizen einfach mit Drag and Drop, sowie dem Kontextmenü bei Rechtsklick auf einen Ordner oder Notiz.
+
+---
+Markdown unterstützt einige verschiedene Funktionen
+
+### Codeblöcke
+```cpp
+std::cout << "Ich kann hier auch Codeblöcke verwenden";
+std::endl;
+// ich lasse diesen Code nach 10 zählen
+for (int i = 0; i < 10; ++i) {
+std::cout << "\\nIch kann auf " << i << " zählen!";
+}
+```
+---
+### Optische bearbeitung
+
+Einen Codeblock hier zu erkennen ist jedoch nicht ganz einfach
+aber ich kann auch **Fett** aber auch *kursiv*.\s
+---
+Für weitere  Syntaxhilfe → www.markdown.de
+""");
+        note.setFolder(root);
+        note.setUser(user);
+        return note;
     }
 }
