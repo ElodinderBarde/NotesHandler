@@ -59,6 +59,11 @@ Ziel des Projekts ist die Entwicklung einer persönlichen, mehrbenutzerfähigen 
 * **User Story 3:**
   Als Benutzer:in möchte ich Markdown verwenden, um strukturierte und lesbare Inhalte zu erstellen.
 
+
+Die Vollständigen User Stories inklusive Akzeptanzkriterien sind im GitHub-Wiki des Projekts dokumentiert.
+
+https://github.com/ElodinderBarde/NotesHandler/wiki
+
 ---
 
 ## Backend-Architektur
@@ -100,6 +105,28 @@ Ordner können hierarchisch aufgebaut sein.
 Fremdschlüssel stellen die referenzielle Integrität sicher.
 
 
+```mermaid
+classDiagram
+direction BT
+class BaseEntity
+class WorldNotesCategory
+class WorldNotesFolder
+class WorldNotesLink
+class WorldNotesNote
+
+WorldNotesCategory  -->  BaseEntity 
+WorldNotesCategory "1" *--> "folders *" WorldNotesFolder 
+WorldNotesFolder  -->  BaseEntity 
+WorldNotesFolder "1" *--> "category 1" WorldNotesCategory 
+WorldNotesFolder "1" *--> "notes *" WorldNotesNote 
+WorldNotesLink  -->  BaseEntity 
+WorldNotesLink "1" *--> "note 1" WorldNotesNote 
+WorldNotesNote  -->  BaseEntity 
+WorldNotesNote "1" *--> "category 1" WorldNotesCategory 
+WorldNotesNote "1" *--> "folder 1" WorldNotesFolder 
+WorldNotesNote "1" *--> "links *" WorldNotesLink 
+
+```
 ---
 
 ## Authentifizierung (JWT)
@@ -138,6 +165,41 @@ Die Authentifizierung erfolgt über **JSON Web Tokens (JWT)**:
 
 Das Frontend wird mit **React** umgesetzt und kommuniziert ausschliesslich über die REST-API mit dem Backend.
 
+
+
+## Frontend-Architektur
+
+Das Frontend basiert auf einer komponentenbasierten Architektur mit React.
+Die Anwendung ist klar in wiederverwendbare UI-Komponenten und logische Seiten aufgeteilt.
+
+### Zentrale Konzepte
+
+* **Komponentenbasierter Aufbau**
+  Jede Funktion (z. B. Sidebar, NoteEditor, LoginModal) ist als eigenständige React-Komponente umgesetzt.
+
+* **State Management**
+  Lokaler State wird mit React Hooks (`useState`, `useEffect`) verwaltet.
+  Authentifizierungsinformationen werden über einen zentralen `AuthContext` bereitgestellt.
+
+* **Routing**
+  Die Navigation erfolgt über `react-router-dom`.
+  Geschützte Routen (z. B. `/notes`) sind nur für eingeloggte Benutzer:innen zugänglich.
+
+* **API-Kommunikation**
+  Die Kommunikation mit dem Backend erfolgt über Axios.
+  Der JWT-Token wird automatisch im Authorization-Header mitgesendet.
+
+Diese Architektur ermöglicht eine klare Trennung von Logik, Darstellung und Datenzugriff.
+
+### JWT im Frontend
+
+Nach erfolgreichem Login speichert das Frontend den JWT-Token im Speicher (Context).
+Bei jedem geschützten API-Request wird der Token automatisch im HTTP-Header übermittelt.
+
+Nicht authentifizierte Benutzer:innen werden beim Zugriff auf geschützte Routen automatisch auf die Login-Seite umgeleitet.
+
+
+
 ### Aktuelle Funktionen
 
 * Ordner- und Notizenübersicht
@@ -158,6 +220,10 @@ Das Frontend wird mit **React** umgesetzt und kommuniziert ausschliesslich über
 * Zugriff auf Notizen ausschliesslich benutzergebunden, mit serverseitiger Validierung
 * Keine sensiblen Daten im Klartext gespeichert
 
+Zusätzlich werden sensible Daten wie JWT-Secrets und Datenbank-Zugangsdaten
+nicht im Code, sondern über Umgebungsvariablen konfiguriert.
+
+
 ---
 
 ## Testplan
@@ -169,7 +235,10 @@ Das Frontend wird mit **React** umgesetzt und kommuniziert ausschliesslich über
 
 **Frontend**
 
-* Manuelle Tests der Kernfunktionen 
+* Manuelle Tests der Kernfunktionen (Login, Navigation, Notizen bearbeiten)
+* Verifikation des Routing-Verhaltens bei eingeloggten / nicht eingeloggten Benutzern
+* Überprüfung der Markdown-Darstellung und des Read/Edit-Modus
+
 
 ---
 
@@ -254,7 +323,18 @@ Backend erreichbar unter:
 ## Dokumentation
 
 * **Swagger / OpenAPI:** `http://localhost:8080/swagger-ui.html`
-* **JavaDoc:** tbd
+
+## Versionskontrolle (Git)
+
+Für die Entwicklung wurde Git konsequent eingesetzt.
+
+* Verwendung eines zentralen GitHub-Repositories
+* Trennung von Entwicklungsständen durch Branches
+* Regelmässige, thematisch saubere Commits
+* Aussagekräftige Commit-Messages
+* Merge von Feature-Branches in den `main`-Branch
+
+Dies ermöglichte eine nachvollziehbare Entwicklung und eine saubere Versionshistorie.
 
 ---
 
