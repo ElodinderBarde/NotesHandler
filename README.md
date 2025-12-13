@@ -25,6 +25,100 @@ Ziel des Projekts ist die Entwicklung einer persönlichen, mehrbenutzerfähigen 
 * Klare REST-API zur Anbindung eines React-Frontends
 * Erweiterbarkeit (z. B. Wiki-Links, Kategorien, Versionierung)(Aus Zeitgründen nicht abschliessend umgesetzt)
 
+
+
+
+
+## Versionsverlauf (Zusammenfassung der Commits)
+
+Die Entwicklung von NotesHandler erfolgte iterativ über mehrere klar abgegrenzte Entwicklungsphasen.
+Dabei wurden Backend, Frontend, Infrastruktur und Dokumentation schrittweise aufgebaut und erweitert.
+
+### Phase 1 – Projektinitialisierung & Infrastruktur
+
+- Initiales Projekt-Setup und Repository-Erstellung
+
+- Vorbereitung von application.properties
+
+- Initialisierung der Docker-Umgebung (PostgreSQL, Backend, Frontend)
+
+- Einrichtung von Docker Compose inklusive Umgebungsvariablen
+
+- Erste lauffähige Backend- und Datenbankanbindung
+
+### Phase 2 – Authentifizierung & Benutzerverwaltung
+
+- Implementierung der Benutzer-Entitäten
+
+- JWT-basierte Authentifizierung im Backend
+
+- Login- und Registrierungsfunktionalität im Backend
+
+- Frontend-Login- und Registrierungsformular
+
+- Validierung von Benutzername und E-Mail-Adresse
+
+- Vollständige Login-/Register-Funktionalität Frontend ↔ Backend
+
+### Phase 3 – Notizen-Domäne (Backend)
+
+- Modellierung der Notizen-, Ordner- und Kategorie-Tabellen
+
+- Einführung von DTOs, Mappers, Repositories, Services und Controllern
+
+- Korrekturen an Kategorien- und Ordner-Logik
+
+- Zugriffsschutz über JWT (kein manuelles userId-Handling in Controllern)
+
+- Stabilisierung der Ordner- und Notizen-Endpunkte
+
+### Phase 4 – Frontend-Notizen & UI-Funktionen
+
+- Darstellung von Ordner- und Notizenstrukturen im Frontend
+
+- FolderTree mit verschachtelten Ordnern und Notizen
+
+- Kontextmenü für Ordner und Notizen (Erstellen, Löschen, Umbenennen, Verschieben)
+
+- Synchronisation zwischen Frontend und Backend
+
+- CORS-Handling für Docker-Setup
+
+### Phase 5 – Editor & Erweiterungen
+
+- Integration eines Markdown-Editors im Frontend
+
+- Vorbereitung des Backends für Wiki-Link-Funktionalität
+
+- Einführung eines Read-/Edit-Modus für Notizen
+
+- Korrekturen an der Notiz-Erstellung
+
+### Phase 6 – Tests & Dokumentation
+
+- Ergänzung einfacher automatisierter Tests
+
+- Laufende Aktualisierung und Konsolidierung der README
+
+- Ergänzung der Frontend-Architektur-Dokumentation
+
+- Dokumentation der JWT-Authentifizierung (Frontend & Backend)
+
+- Integration eines Klassen-/Entity-Diagramms
+
+- Korrekturen und Präzisierungen in der Testdokumentation
+
+### Phase 7 – Versionspflege & Merges
+
+- Regelmässige Merges aus dem main-Branch
+
+- Bereinigung von Tippfehlern
+
+- Konsolidierung der Dokumentation
+
+- Feinschliff kurz vor Abgabe
+
+
 ---
 
 ## Anforderungsanalyse
@@ -205,6 +299,134 @@ Die Authentifizierung erfolgt über **JSON Web Tokens (JWT)**:
 3. Token wird im `Authorization`-Header (`Bearer <token>`) mitgesendet
 4. Token wird serverseitig validiert
 5. Zugriff erfolgt kontextabhängig auf den eingeloggten Benutzer
+
+
+### Athentifizierungs-Architektur
+
+```mermaid
+classDiagram
+direction TB
+
+%% =====================
+%% Core Application
+%% =====================
+
+class App {
+  BrowserRouter
+  Routes
+  Route
+  Home
+  NotesPage
+  Navbar
+  ProtectedRoute
+}
+
+class Home {
+  Loginbox
+  Registerbox
+  useState
+}
+
+class Navbar
+
+class NotesPage
+
+%% =====================
+%% Authentication
+%% =====================
+
+class AuthContext {
+  AuthProvider
+  createContext
+  useContext
+  useAuth
+  useEffect
+  useState
+  loginRequest
+  logoutRequest
+}
+
+class ProtectedRoute {
+  Navigate
+  useAuth
+}
+
+%% =====================
+%% UI Components
+%% =====================
+
+class Loginbox {
+  Modal.css
+  useAuth
+  useNavigate
+  useState
+}
+
+class Registerbox {
+  Modal.css
+  checkEmailAvailable
+  checkUsernameAvailable
+  registerUser
+  useEffect
+  useState
+}
+
+%% =====================
+%% Services & Utils
+%% =====================
+
+class AuthService {
+  apiClient
+  axios
+  loginRequest
+  logoutRequest
+  registerUser
+  checkEmailAvailable
+  checkUsernameAvailable
+}
+
+class ApiClient {
+  axios
+}
+
+%% =====================
+%% Routing
+%% =====================
+
+class ReactRouter {
+  BrowserRouter
+  Routes
+  Route
+  Navigate
+  useNavigate
+}
+
+%% =====================
+%% Relationships
+%% =====================
+
+App --> Home
+App --> Navbar
+App --> NotesPage
+App --> ProtectedRoute
+App --> AuthContext
+App --> ReactRouter
+
+Home --> Loginbox
+Home --> Registerbox
+
+Loginbox --> AuthContext
+Registerbox --> AuthService
+
+ProtectedRoute --> AuthContext
+ProtectedRoute --> ReactRouter
+
+AuthContext --> AuthService
+AuthService --> ApiClient
+
+
+
+```
 
 ---
 
@@ -427,7 +649,6 @@ Wurde punktuell zur Unterstützung eingesetzt, insbesondere für:
 
 ## Anmerkungen
 
-* Einige Diagramme werden bewusst extern verlinkt, um die README übersichtlich zu halten.
 * Erweiterungen wie Wiki-Links oder Versionierung sind konzeptionell vorbereitet.
 
 ---
