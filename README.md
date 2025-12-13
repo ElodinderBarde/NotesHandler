@@ -108,11 +108,77 @@ Fremdschlüssel stellen die referenzielle Integrität sicher.
 ```mermaid
 classDiagram
 direction BT
-class BaseEntity
-class WorldNotesCategory
-class WorldNotesFolder
-class WorldNotesLink
-class WorldNotesNote
+class BaseEntity {
+  + BaseEntity(Long, Long, Instant, Instant) 
+  + BaseEntity() 
+  - Long version
+  - Long id
+  - Instant createdAt
+  - Instant updatedAt
+  # onUpdate() void
+   Instant updatedAt
+   Long id
+   Long version
+   Instant createdAt
+}
+class WorldNotesCategory {
+  + WorldNotesCategory(String, AppUser, List~WorldNotesFolder~) 
+  + WorldNotesCategory() 
+  - List~WorldNotesFolder~ folders
+  - AppUser user
+  - String name
+  # onCreate() void
+   String name
+   AppUser user
+   List~WorldNotesFolder~ folders
+}
+class WorldNotesFolder {
+  + WorldNotesFolder(String, AppUser, WorldNotesCategory, List~WorldNotesNote~, WorldNotesFolder, List~WorldNotesFolder~) 
+  + WorldNotesFolder() 
+  - AppUser user
+  - String name
+  - WorldNotesCategory category
+  - List~WorldNotesNote~ notes
+  - WorldNotesFolder parentFolder
+  - List~WorldNotesFolder~ children
+   WorldNotesFolder parentFolder
+   String name
+   List~WorldNotesFolder~ children
+   AppUser user
+   List~WorldNotesNote~ notes
+   WorldNotesCategory category
+}
+class WorldNotesLink {
+  + WorldNotesLink(String, String, WorldNotesNote, WorldNotesNote) 
+  + WorldNotesLink() 
+  - String linkUrl
+  - String linkText
+  - WorldNotesNote note
+  - WorldNotesNote targetNote
+   String description
+   WorldNotesNote targetNote
+   WorldNotesNote note
+   String linkUrl
+   String linkText
+}
+class WorldNotesNote {
+  + WorldNotesNote(Long, String, String, AppUser, WorldNotesFolder, List~WorldNotesLink~, WorldNotesCategory) 
+  + WorldNotesNote() 
+  - Long id
+  - String title
+  - AppUser user
+  - WorldNotesFolder folder
+  - WorldNotesCategory category
+  - String content
+  - List~WorldNotesLink~ links
+   String content
+   String title
+   Long id
+   WorldNotesFolder folder
+   AppUser user
+   List~WorldNotesLink~ links
+   WorldNotesCategory category
+}
 
 WorldNotesCategory  -->  BaseEntity 
 WorldNotesCategory "1" *--> "folders *" WorldNotesFolder 
@@ -125,6 +191,7 @@ WorldNotesNote  -->  BaseEntity
 WorldNotesNote "1" *--> "category 1" WorldNotesCategory 
 WorldNotesNote "1" *--> "folder 1" WorldNotesFolder 
 WorldNotesNote "1" *--> "links *" WorldNotesLink 
+
 
 ```
 ---
