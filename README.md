@@ -651,5 +651,17 @@ Wurde punktuell zur Unterstützung eingesetzt, insbesondere für:
 
 * Erweiterungen wie Wiki-Links oder Versionierung sind konzeptionell vorbereitet.
 
+
+### JavaDoc
+
+Für das Backend wurde eine JavaDoc-Dokumentation generiert.
+
+Die HTML-Dokumentation befindet sich unter:
+
+`target/reports/apidocs/index.html`
+
+Sie enthält die Dokumentation der zentralen Entitäten, Services,
+Controller sowie der Sicherheits- und JWT-Komponenten.
+
 ---
 
