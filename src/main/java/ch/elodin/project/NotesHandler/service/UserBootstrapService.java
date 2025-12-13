@@ -77,6 +77,7 @@ for (int i = 0; i < 10; ++i) {
 ```
 ---
 ### Optische bearbeitung
+
 Einen Codeblock hier zu erkennen ist jedoch nicht ganz einfach
 aber ich kann auch **Fett** aber auch *kursiv*.\s
 ---
