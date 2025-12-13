@@ -64,17 +64,9 @@ public class DataInitializer implements CommandLineRunner {
 
         // DEFAULT WELCOME NOTE -------------------------------------------------
         if (noteRepo.count() == 0) {
-            WorldNotesNote note = getWorldNotesNote(root, user);
-            noteRepo.save(note);
-
-            System.out.println("✔ Begrüßungsnotiz erstellt");
-        }
-    }
-
-    private static WorldNotesNote getWorldNotesNote(WorldNotesFolder root, AppUser user) {
-        WorldNotesNote note = new WorldNotesNote();
-        note.setTitle("Willkommen in NotesHandler");
-        note.setContent("""
+            WorldNotesNote note = new WorldNotesNote();
+            note.setTitle("Willkommen in NotesHandler");
+            note.setContent("""
 Dies ist deine erste Notiz.
 
 Die Plattform unterstützt **Markdown**.
@@ -93,19 +85,23 @@ std::cout << "Ich kann hier auch Codeblöcke verwenden";
 std::endl;
 // ich lasse diesen Code nach 10 zählen
 for (int i = 0; i < 10; ++i) {
-std::cout << "\\nIch kann auf " << i << " zählen!";
+    std::cout << "\\nIch kann auf " << i << " zählen!";
 }
 ```
 ---
 ### Optische bearbeitung
 
 Einen Codeblock hier zu erkennen ist jedoch nicht ganz einfach
-aber ich kann auch **Fett** aber auch *kursiv*.\s
+aber ich kann auch **Fett** aber auch *kursiv*.
+
 ---
 Für weitere  Syntaxhilfe → www.markdown.de
 """);
-        note.setFolder(root);
-        note.setUser(user);
-        return note;
+            note.setFolder(root);
+            note.setUser(user);
+            noteRepo.save(note);
+
+            System.out.println("✔ Begrüßungsnotiz erstellt");
+        }
     }
 }
