@@ -78,7 +78,7 @@ Das Backend folgt einer klassischen **Layered Architecture**, um Verantwortlichk
   Verarbeitet HTTP-Requests und stellt REST-Endpunkte bereit.
 
 * **Service Layer**
-  Enthält die Business-Logik (z. B. Zugriffskontrolle, Validierung, Notenverwaltung).
+  Enthält die Business-Logik (z. B. Zugriffskontrolle, Validierung, Notizenverwaltung).
 
 * **Repository Layer**
   Kapselt den Datenbankzugriff über Spring Data JPA.
@@ -306,6 +306,7 @@ nicht im Code, sondern über Umgebungsvariablen konfiguriert.
 * Verifikation des Routing-Verhaltens bei eingeloggten / nicht eingeloggten Benutzern
 * Überprüfung der Markdown-Darstellung und des Read/Edit-Modus
 
+Die Tests sind im jeweiligen Quellcode-Verzeichnis dokumentiert und nachvollziehbar implementiert.
 
 ---
 
